@@ -9,5 +9,6 @@ urlpatterns = [
     path("", home_view, name="home"),
     path("", include("apps.accounts.urls")),
     path("projects/", include("apps.projects.urls")),
+    path("", include("apps.cycles.urls")),
 ]
 

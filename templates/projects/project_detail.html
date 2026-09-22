@@ -41,6 +41,61 @@
         </div>
     </div>
 
+    <!-- Feedback Cycles Section -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div>
+                <h2 class="text-xl font-bold text-slate-900">Feedback Cycles</h2>
+                <p class="text-xs text-slate-500 mt-0.5">Weekly feedback collection cycles and retrospectives for this project.</p>
+            </div>
+            {% if is_facilitator %}
+                <a href="{% url 'cycle_create' slug=project.slug %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition">
+                    + Start New Feedback Cycle
+                </a>
+            {% endif %}
+        </div>
+
+        {% if cycles %}
+            <div class="divide-y divide-slate-100 border border-slate-100 rounded-xl overflow-hidden">
+                {% for cycle in cycles %}
+                    <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50 transition">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-lg">
+                                🔄
+                            </div>
+                            <div>
+                                <a href="{% url 'cycle_detail' slug=project.slug pk=cycle.pk %}" class="font-bold text-slate-900 hover:text-indigo-600 transition text-sm sm:text-base">
+                                    Week of {{ cycle.week_date|date:"M d, Y" }}
+                                </a>
+                                <p class="text-xs text-slate-500">Initiated by {{ cycle.facilitator.username }} • Created {{ cycle.created_at|date:"M d, Y" }}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
+                                {% if cycle.status == 'COLLECTING' %}
+                                    bg-amber-100 text-amber-800 border border-amber-200
+                                {% elif cycle.status == 'RETROSPECTIVE' %}
+                                    bg-indigo-100 text-indigo-800 border border-indigo-200
+                                {% else %}
+                                    bg-emerald-100 text-emerald-800 border border-emerald-200
+                                {% endif %}">
+                                ● {{ cycle.get_status_display }}
+                            </span>
+                            <a href="{% url 'cycle_detail' slug=project.slug pk=cycle.pk %}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-500">
+                                View Cycle &rarr;
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="p-8 text-center text-slate-500 border border-dashed border-slate-200 rounded-xl text-sm">
+                No feedback cycles started yet. {% if is_facilitator %}Click "+ Start New Feedback Cycle" to begin collecting feedback.{% else %}Your project facilitator will start the next feedback cycle.{% endif %}
+            </div>
+        {% endif %}
+    </div>
+
     <!-- Team Members & Roster Section -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <!-- Roster Table (2 cols on large screen) -->

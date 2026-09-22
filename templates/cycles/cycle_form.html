@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Start Feedback Cycle — {{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto py-8">
+    <div class="mb-6">
+        <a href="{% url 'project_detail' slug=project.slug %}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500 inline-flex items-center">
+            &larr; Back to {{ project.name }}
+        </a>
+        <h1 class="text-2xl font-bold text-slate-900 mt-2">Start New Feedback Cycle</h1>
+        <p class="text-sm text-slate-500 mt-1">Initiate a weekly cycle to collect Start, Stop, Continue feedback asynchronously from teammates.</p>
+    </div>
+
+    <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+        <form method="post" action="{% url 'cycle_create' slug=project.slug %}" class="space-y-6">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="rounded-lg bg-amber-50 border border-amber-200 p-4 text-sm text-amber-800 space-y-2">
+                    {% for error in form.non_field_errors %}
+                        <p class="font-medium">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Week Date -->
+            <div>
+                <label for="{{ form.week_date.id_for_label }}" class="block text-sm font-semibold text-slate-700 mb-1">
+                    Target Week Starting Date
+                </label>
+                {{ form.week_date }}
+                {% if form.week_date.errors %}
+                    <div class="mt-1.5 text-xs text-rose-600 space-y-0.5">
+                        {% for error in form.week_date.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="mt-1 text-xs text-slate-400">Defaults to Monday of the current week.</p>
+                {% endif %}
+            </div>
+
+            <!-- Concurrent confirmation (shown if needed or checkbox) -->
+            {% if form.allow_concurrent %}
+                <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                    <div class="flex items-center h-5">
+                        {{ form.allow_concurrent }}
+                    </div>
+                    <div class="text-xs">
+                        <label for="{{ form.allow_concurrent.id_for_label }}" class="font-medium text-slate-700">
+                            {{ form.allow_concurrent.label }}
+                        </label>
+                        <p class="text-slate-500">{{ form.allow_concurrent.help_text }}</p>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Submit -->
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <a href="{% url 'project_detail' slug=project.slug %}" class="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
+                    Cancel
+                </a>
+                <button type="submit" class="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition">
+                    Start Feedback Cycle
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

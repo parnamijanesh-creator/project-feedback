@@ -65,6 +65,7 @@ class ProjectDetailView(LoginRequiredMixin, View):
         is_facilitator = membership.role == ProjectMember.Role.FACILITATOR
 
         members = project.members.select_related("user").all()
+        cycles = project.cycles.select_related("facilitator").all()
         add_member_form = AddProjectMemberForm(project=project) if is_facilitator else None
 
         context = {
@@ -72,6 +73,7 @@ class ProjectDetailView(LoginRequiredMixin, View):
             "current_membership": membership,
             "is_facilitator": is_facilitator,
             "members": members,
+            "cycles": cycles,
             "add_member_form": add_member_form,
             "role_choices": ProjectMember.Role.choices,
         }
@@ -99,11 +101,13 @@ class ProjectDetailView(LoginRequiredMixin, View):
             return redirect("project_detail", slug=project.slug)
 
         members = project.members.select_related("user").all()
+        cycles = project.cycles.select_related("facilitator").all()
         context = {
             "project": project,
             "current_membership": membership,
             "is_facilitator": True,
             "members": members,
+            "cycles": cycles,
             "add_member_form": form,
             "role_choices": ProjectMember.Role.choices,
         }
