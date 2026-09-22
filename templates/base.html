@@ -6,6 +6,8 @@
     <title>{% block title %}Weekly Team Feedback Tool{% endblock %}</title>
     <!-- Tailwind CSS CDN for rapid styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- HTMX 2.x -->
+    <script src="https://unpkg.com/htmx.org@2.0.2"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -14,7 +16,7 @@
     </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="min-h-full flex flex-col text-slate-900 bg-slate-50 antialiased">
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' class="min-h-full flex flex-col text-slate-900 bg-slate-50 antialiased">
     <!-- Header Navigation -->
     <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
