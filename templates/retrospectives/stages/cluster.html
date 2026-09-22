@@ -1,0 +1,50 @@
+<div class="space-y-6">
+    <!-- Stage Toolbar / Controls -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+        <div>
+            <h2 class="text-lg font-bold text-slate-900">Cluster Feedback Cards</h2>
+            <p class="text-xs text-slate-500">Group related feedback items into themes or create custom topic clusters.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            {% include "retrospectives/partials/cluster_form.html" with project=project cycle=cycle %}
+            {% if is_facilitator %}
+                <form method="post" action="{% url 'retro_run_clustering' slug=project.slug pk=cycle.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs shadow-sm transition">
+                        ✨ Run AI Clustering
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Grid: Clusters on Left (2/3), Unclustered Cards on Right (1/3) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <!-- Clusters Column (2/3) -->
+        <div class="lg:col-span-2 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                    <span>🗂️</span> Topic Clusters
+                </h3>
+                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                    {{ clusters|length }} Cluster{{ clusters|length|pluralize }}
+                </span>
+            </div>
+
+            <div id="clusters-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for cluster in clusters %}
+                    {% include "retrospectives/partials/cluster_item.html" with cluster=cluster project=project cycle=cycle %}
+                {% empty %}
+                    <div id="no-clusters-msg" class="md:col-span-2 p-8 text-center bg-white border border-dashed border-slate-200 rounded-2xl text-xs text-slate-400">
+                        No topic clusters created yet. Click "+ New Cluster" or "Run AI Clustering" above.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Unclustered Cards Pool (1/3) -->
+        <div class="lg:col-span-1">
+            {% include "retrospectives/partials/unclustered_pool.html" with unclustered_cards=unclustered_cards project=project cycle=cycle %}
+        </div>
+    </div>
+</div>

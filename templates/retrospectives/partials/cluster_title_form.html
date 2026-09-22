@@ -1,0 +1,28 @@
+<div id="cluster-title-{{ cluster.id }}" class="w-full space-y-1">
+    <form hx-post="{% url 'cluster_update' slug=project.slug pk=cycle.pk cluster_id=cluster.pk %}"
+          hx-target="#cluster-title-{{ cluster.id }}"
+          hx-swap="outerHTML"
+          class="flex items-center gap-2">
+        {% csrf_token %}
+        <input type="text"
+               name="title"
+               value="{{ cluster.title }}"
+               autofocus
+               required
+               class="flex-1 text-xs px-2.5 py-1.5 border {% if error %}border-rose-400 focus:ring-rose-400{% else %}border-slate-300 focus:ring-indigo-500{% endif %} rounded-lg bg-white font-medium focus:ring-1 focus:outline-none">
+        <button type="submit"
+                class="px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition">
+            Save
+        </button>
+        <button type="button"
+                hx-get="{% url 'cluster_title' slug=project.slug pk=cycle.pk cluster_id=cluster.pk %}"
+                hx-target="#cluster-title-{{ cluster.id }}"
+                hx-swap="outerHTML"
+                class="px-2 py-1.5 rounded-lg bg-slate-100 text-slate-600 text-xs font-medium hover:bg-slate-200 transition">
+            Cancel
+        </button>
+    </form>
+    {% if error %}
+        <p class="text-[11px] text-rose-600 font-medium">{{ error }}</p>
+    {% endif %}
+</div>

@@ -1,0 +1,41 @@
+<div id="new-cluster-container" x-data="{ open: {% if error %}true{% else %}false{% endif %} }" class="w-full">
+    <div x-show="!open">
+        <button type="button"
+                @click="open = true; $nextTick(() => $refs.titleInput.focus())"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold hover:bg-indigo-100 transition shadow-sm">
+            <span>+</span> New Cluster
+        </button>
+    </div>
+
+    <div x-show="open" x-cloak class="bg-white p-4 rounded-2xl border border-indigo-200 shadow-sm space-y-2">
+        <form id="new-cluster-form"
+              hx-post="{% url 'cluster_create' slug=project.slug pk=cycle.pk %}"
+              hx-target="#clusters-list"
+              hx-swap="beforeend"
+              class="space-y-2">
+            {% csrf_token %}
+            <div class="flex items-center gap-2">
+                <input type="text"
+                       name="title"
+                       x-ref="titleInput"
+                       placeholder="Cluster name (e.g., Code Review Bottlenecks)..."
+                       required
+                       class="flex-1 text-xs px-3 py-2 border {% if error %}border-rose-400 focus:ring-rose-400{% else %}border-slate-300 focus:ring-indigo-500{% endif %} rounded-xl bg-white font-medium focus:ring-1 focus:outline-none">
+                <button type="submit"
+                        class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition">
+                    Create
+                </button>
+                <button type="button"
+                        @click="open = false"
+                        class="px-3 py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-medium hover:bg-slate-200 transition">
+                    Cancel
+                </button>
+            </div>
+            <div id="new-cluster-error">
+                {% if error %}
+                    <p class="text-xs text-rose-600 font-medium">{{ error }}</p>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
