@@ -9,14 +9,29 @@
 
 ## 2. Core Documentation (Single Source of Truth)
 Before writing or modifying code, all AI assistants MUST consult these documents in `_docs/`:
-- **[_docs/plan.md](_docs/plan.md):** Complete product requirements, core workflows, user roles (Facilitator vs Member), and scope constraints.
-- **[_docs/architecture.md](_docs/architecture.md):** Concrete technical architecture, Django models, database schemas, Channels WebSockets, Celery workers, Whisper transcription, and LLM structured extraction.
-- **[_docs/tasks.md](_docs/tasks.md):** Granular, single-session backlog tasks mapped 1:1 to GitHub Issues (#1 to #23).
+- **[_docs/task-template.md](_docs/task-template.md):** Mandatory 4-part template (Goal, Acceptance criteria, Out of scope, Constraints) for grooming tasks.
+- **[_docs/team/pm.md](_docs/team/pm.md):** Product Manager role definition and grooming guidelines.
 - **[_docs/progress.md](_docs/progress.md):** Living tracker of completed tasks, active work, and implementation decisions.
+- **Reference Specifications (in `_docs/` / `_docs/outdated/`):**
+  - `plan.md`: Complete product requirements, core workflows, user roles (Facilitator vs Member).
+  - `architecture.md`: Concrete technical architecture, schemas, WebSockets, Celery, Whisper, LLM structured extraction.
+  - `tasks.md`: Original 23 backlog tasks.
 
 ---
 
-## 3. Technology Stack Guardrails
+## 3. Team Roles & Task Grooming Protocol (PM Directive)
+All issues must be groomed following `_docs/team/pm.md` before implementation:
+1. **Role Persona:** Act as Product Manager (`_docs/team/pm.md`).
+2. **Groom Before Implementation:** Read the issue as written, think through edge cases, and rewrite the issue using the template in `_docs/task-template.md`:
+   - **Goal:** 1-2 sentences on what should be true when done.
+   - **Acceptance criteria:** Checkable statements (yes/no by looking at the result), one line per case including edge/awkward cases.
+   - **Out of scope:** Explicitly file follow-up GitHub issues for anything deferred, linking them.
+   - **Constraints:** Files, libraries, architectural guidelines to adhere to.
+3. **No Code During Grooming:** Grooming strictly defines requirements; do not write application code while grooming.
+
+---
+
+## 4. Technology Stack Guardrails
 - **Backend:** Python 3.11+, Django 5.x, ASGI via Daphne.
 - **Database:** PostgreSQL 16+ (Dockerized in dev/prod; SQLite permitted for lightweight unit test runs).
 - **Real-Time:** Django Channels 4.x with Redis channel layer (`redis:6379`).
@@ -28,25 +43,26 @@ Before writing or modifying code, all AI assistants MUST consult these documents
 
 ---
 
-## 4. Session Startup Protocol (MANDATORY FOR EVERY NEW SESSION)
+## 5. Session Startup Protocol (MANDATORY FOR EVERY NEW SESSION)
 When entering a new session or receiving a new prompt, follow these steps in order:
 
 1. **Check Progress State:**
    - Read `_docs/progress.md` to see which issue is currently active, what has already been built, and recent implementation notes.
 2. **Inspect Git & Environment Status:**
    - Run `git status` and `git log -n 3` to verify active branch and latest commits.
-3. **Inspect the Target GitHub Issue:**
-   - Identify the task number from `_docs/tasks.md` and inspect the corresponding GitHub issue (e.g. `gh issue view <number>`).
+3. **Inspect & Groom the Target GitHub Issue:**
+   - Inspect the target GitHub issue (e.g. `gh issue view <number>`).
+   - If not already groomed, act as PM (`_docs/team/pm.md`) and groom the issue using `_docs/task-template.md` (update on GitHub via `gh issue edit`).
 4. **Adhere to Architectural Models:**
-   - Cross-reference `_docs/architecture.md` to ensure any new models, views, or endpoints align with established schemas.
+   - Cross-reference architecture documentation to ensure any new models, views, or endpoints align with established schemas.
 5. **Test-Driven Verification:**
    - Run automated tests (`python manage.py test` or `pytest`) to verify tests pass before and after making changes.
 6. **Update Progress & GitHub:**
-   - On task completion, update `_docs/progress.md`, commit with an issue reference (e.g., `git commit -m "feat: setup project structure (closes #1)"`), push to remote, and close/update the GitHub issue.
+   - On task completion, update `_docs/progress.md`, commit with an issue reference (e.g., `git commit -m "feat: ... (closes #X)"`), push to remote, and close/update the GitHub issue.
 
 ---
 
-## 5. Non-Negotiable Product Rules
+## 6. Non-Negotiable Product Rules
 1. **Anonymity Guarantee:** Anonymous feedback cards MUST be strictly decoupled from user identification at the database level (`user_id = NULL`). Never store or expose author metadata for anonymous submissions.
 2. **Private Until Revealed:** Feedback cards cannot be viewed by other teammates until the facilitator triggers the "Reveal" stage.
 3. **Masked Voting:** Vote counts remain secret during the voting phase and are only published after the facilitator closes voting.
