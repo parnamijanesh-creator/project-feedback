@@ -27,10 +27,16 @@ Before writing or modifying code, all AI assistants MUST consult these documents
 
 ### 3.1 Orchestrator — Main Session (`_docs/orchestrator.md`)
 The main session acts as the **Orchestrator**. It manages the overarching issue lifecycle and delegates work to the PM, Software Engineer, and QA Engineer (as specialized personas or subagents).
-- **Rule:** The orchestrator does **not** groom, implement, or test directly.
+- **Rules:**
+  - The orchestrator does **not** groom, implement, or test directly.
+  - **Batch limit:** You can work on up to 5 issues at once. Not more than 5 at a time.
+  - **Mandatory grooming:** Do not skip step 2 (PM grooming), even when the task looks obvious.
+  - The engineer does not close the issue.
+  - QA does not fix the code, only outputs `## QA: PASS` or `## QA: FAIL`.
+  - The orchestrator closes the issue only after QA outputs `## QA: PASS`.
 - **Lifecycle Loop:**
-  1. Pick next open issue from the backlog.
-  2. **PM grooms it** (never skip grooming).
+  1. Pick next open issue from the backlog (up to 5 at a time).
+  2. **PM grooms it** (never skip grooming, even if obvious).
   3. **Engineer implements it** (leaves issue open, comments implementation details).
   4. **QA verifies it** (does not touch code, outputs `## QA: PASS` or `## QA: FAIL`).
   5. On `FAIL`: loop back to step 3 with the QA findings as input.

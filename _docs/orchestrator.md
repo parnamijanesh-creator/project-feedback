@@ -13,7 +13,8 @@ Lifecycle
 
 Rules
 
-- Do not skip step 2
+- You can work on upto 5 issues at once. Not more than 5 at a time.
+- Do not skip step 2, even when the task looks obvious.
 - The engineer does not close the issue
 - QA does not fix the code, only outputs PASS or FAIL
 - The orchestrator closes the issue only after QA outputs PASS
