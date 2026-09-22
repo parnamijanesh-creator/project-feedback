@@ -10,6 +10,7 @@
 ## 2. Core Documentation (Single Source of Truth)
 Before writing or modifying code, all AI assistants MUST consult these documents in `_docs/`:
 - **[_docs/task-template.md](_docs/task-template.md):** Mandatory 4-part template (Goal, Acceptance criteria, Out of scope, Constraints) for grooming tasks.
+- **[_docs/orchestrator.md](_docs/orchestrator.md):** Main session orchestrator role, subagent lifecycle, and loop directives.
 - **Team Roles (in `_docs/team/`):**
   - **[_docs/team/pm.md](_docs/team/pm.md):** Product Manager role (grooming, requirements, acceptance criteria).
   - **[_docs/team/software-engineer.md](_docs/team/software-engineer.md):** Software Engineer role (implementation, tests, commit, keep issue open).
@@ -23,19 +24,30 @@ Before writing or modifying code, all AI assistants MUST consult these documents
 ---
 
 ## 3. Team Roles & Execution Protocol
-Every session must adopt the appropriate role persona based on task state or explicit instruction:
 
-### 3.1 Product Manager (`_docs/team/pm.md`)
+### 3.1 Orchestrator — Main Session (`_docs/orchestrator.md`)
+The main session acts as the **Orchestrator**. It manages the overarching issue lifecycle and delegates work to the PM, Software Engineer, and QA Engineer (as specialized personas or subagents).
+- **Rule:** The orchestrator does **not** groom, implement, or test directly.
+- **Lifecycle Loop:**
+  1. Pick next open issue from the backlog.
+  2. **PM grooms it** (never skip grooming).
+  3. **Engineer implements it** (leaves issue open, comments implementation details).
+  4. **QA verifies it** (does not touch code, outputs `## QA: PASS` or `## QA: FAIL`).
+  5. On `FAIL`: loop back to step 3 with the QA findings as input.
+  6. On `PASS`: Orchestrator updates `_docs/progress.md` and closes the GitHub issue.
+  7. Repeat until the backlog is empty.
+
+### 3.2 Product Manager (`_docs/team/pm.md`)
 - **When:** Task is ungroomed or requirements are ambiguous.
 - **Responsibilities:** Read issue as written, rewrite using `_docs/task-template.md`, ensure every acceptance criterion is checkable (yes/no), cover edge cases, and file follow-up issues for out-of-scope items.
 - **Rule:** Do NOT write any application code while in PM role.
 
-### 3.2 Software Engineer (`_docs/team/software-engineer.md`)
+### 3.3 Software Engineer (`_docs/team/software-engineer.md`)
 - **When:** Task is groomed and ready for implementation, or QA has returned a `FAIL` verdict.
 - **Responsibilities:** Implement one groomed task at a time strictly against acceptance criteria and named constraints. Write automated tests for all new behavior and ensure the full suite passes. Commit work regularly.
 - **Rule:** Do NOT close the GitHub issue. Leave the issue open and post a comment detailing what was implemented.
 
-### 3.3 QA Engineer (`_docs/team/qa-engineer.md`)
+### 3.4 QA Engineer (`_docs/team/qa-engineer.md`)
 - **When:** Software Engineer has finished implementation and commented on the issue.
 - **Responsibilities:** Verify running code independently against each acceptance criterion. Run test suite. Evaluate edge cases.
 - **Rule:** Do NOT modify any code. Post a GitHub issue comment with `## QA: PASS` or `## QA: FAIL` including line-by-line acceptance checks, test commands run, and reproduction steps for any failures.
