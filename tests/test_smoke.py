@@ -1,6 +1,7 @@
 """Smoke tests verifying test runner and baseline health-check endpoint."""
-from django.test import SimpleTestCase, Client
+from django.test import SimpleTestCase, TestCase, Client
 from django.urls import reverse
+from django.db import connection
 
 
 class SmokeTest(SimpleTestCase):
@@ -25,3 +26,14 @@ class SmokeTest(SimpleTestCase):
         response = self.client.get("/health/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "healthy"})
+
+
+class DatabaseSmokeTest(TestCase):
+    """Verify database connectivity and query execution against active database."""
+
+    def test_database_connection_and_backend(self):
+        """Verify database connection can execute SQL and query engine."""
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1;")
+            row = cursor.fetchone()
+            self.assertEqual(row[0], 1)
