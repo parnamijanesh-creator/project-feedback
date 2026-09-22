@@ -26,6 +26,14 @@
                 <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide bg-indigo-100 text-indigo-800 border border-indigo-200">
                     Stage: {{ retro_session.get_current_stage_display }}
                 </span>
+                {% if is_facilitator %}
+                    <form method="post" action="{% url 'retro_run_clustering' slug=project.slug pk=cycle.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs shadow-sm transition">
+                            ✨ Run AI Clustering
+                        </button>
+                    </form>
+                {% endif %}
             {% else %}
                 <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide bg-amber-100 text-amber-800 border border-amber-200">
                     ● Submissions Hidden
@@ -62,6 +70,43 @@
             {% endif %}
         </div>
     {% else %}
+        {% if clusters %}
+            <!-- Thematic Clusters Section -->
+            <div class="bg-purple-50/60 border border-purple-200 rounded-2xl p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-base font-bold text-purple-900 flex items-center gap-2">
+                        <span>✨</span> Thematic Clusters (AI-Assisted)
+                    </h2>
+                    <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-200 text-purple-800">
+                        {{ clusters|length }} Theme{{ clusters|length|pluralize }}
+                    </span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {% for cluster in clusters %}
+                        <div class="bg-white p-4 rounded-xl border border-purple-200 shadow-sm space-y-2">
+                            <div class="flex items-start justify-between gap-2">
+                                <h3 class="font-bold text-sm text-slate-900">{{ cluster.title }}</h3>
+                                {% if cluster.is_ai_generated %}
+                                    <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">AI</span>
+                                {% endif %}
+                            </div>
+                            {% if cluster.description %}
+                                <p class="text-xs text-slate-500">{{ cluster.description }}</p>
+                            {% endif %}
+                            <div class="space-y-1.5 pt-2 border-t border-slate-100">
+                                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">{{ cluster.cards.count }} Card{{ cluster.cards.count|pluralize }}</span>
+                                {% for card in cluster.cards.all %}
+                                    <div class="text-xs bg-slate-50 p-2 rounded-lg border border-slate-100 text-slate-700">
+                                        <span class="font-bold text-[10px] text-slate-400 mr-1">[{{ card.get_category_display }}]</span>{{ card.text|truncatechars:80 }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
         <!-- Revealed Board: Three Columns (Start, Stop, Continue) -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
             <!-- START COLUMN -->

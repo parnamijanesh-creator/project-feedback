@@ -26,13 +26,15 @@ class RetroBoardView(LoginRequiredMixin, View):
         start_cards = []
         stop_cards = []
         continue_cards = []
+        clusters = []
 
         if retro_session:
             # Cards are revealed! Query all submitted cards across the cycle
-            all_cards = cycle.cards.select_related("user").all()
+            all_cards = cycle.cards.select_related("user", "cluster").all()
             start_cards = all_cards.filter(category=FeedbackCard.Category.START)
             stop_cards = all_cards.filter(category=FeedbackCard.Category.STOP)
             continue_cards = all_cards.filter(category=FeedbackCard.Category.CONTINUE)
+            clusters = retro_session.clusters.prefetch_related("cards").all()
 
         context = {
             "project": project,
@@ -42,6 +44,7 @@ class RetroBoardView(LoginRequiredMixin, View):
             "start_cards": start_cards,
             "stop_cards": stop_cards,
             "continue_cards": continue_cards,
+            "clusters": clusters,
         }
         return render(request, "retrospectives/board.html", context)
 
@@ -71,4 +74,43 @@ class RetroRevealView(LoginRequiredMixin, View):
             retro_session.save()
 
         messages.success(request, "Cards revealed! The retrospective session is now in session.")
+        return redirect("retro_board", slug=slug, pk=pk)
+
+
+class RetroRunClusteringView(LoginRequiredMixin, View):
+    """Triggers AI-assisted clustering of revealed feedback cards."""
+
+    def post(self, request, slug, pk):
+        project = get_object_or_404(Project, slug=slug)
+        membership = ProjectMember.objects.filter(project=project, user=request.user).first()
+        if not membership or membership.role != ProjectMember.Role.FACILITATOR:
+            raise PermissionDenied("Only project facilitators can run AI clustering.")
+
+        cycle = get_object_or_404(FeedbackCycle, pk=pk, project=project)
+        retro_session = getattr(cycle, "retro_session", None)
+        if not retro_session:
+            messages.error(request, "Please reveal cards before running AI clustering.")
+            return redirect("retro_board", slug=slug, pk=pk)
+
+        cards_count = cycle.cards.count()
+        if cards_count < 2:
+            messages.warning(request, "At least 2 cards are required to generate AI clusters.")
+            return redirect("retro_board", slug=slug, pk=pk)
+
+        from apps.ai_insights.services.clustering import AIClusteringService
+
+        service = AIClusteringService()
+        clusters = service.cluster_session(retro_session)
+
+        if clusters:
+            messages.success(
+                request,
+                f"Generated {len(clusters)} AI thematic cluster{'s' if len(clusters) > 1 else ''}.",
+            )
+        else:
+            messages.error(
+                request,
+                "AI clustering could not be completed. You can organize clusters manually.",
+            )
+
         return redirect("retro_board", slug=slug, pk=pk)

@@ -66,6 +66,13 @@ class FeedbackCard(models.Model):
         blank=True,
         related_name="cards",
     )
+    cluster = models.ForeignKey(
+        "retrospectives.TopicCluster",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="cards",
+    )
     category = models.CharField(
         max_length=20,
         choices=Category.choices,
