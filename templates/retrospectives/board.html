@@ -94,11 +94,18 @@
                class="px-3.5 py-1.5 rounded-xl font-semibold transition {% if active_stage == 'VOTE' %}bg-indigo-600 text-white shadow-sm{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
                 3. Vote
             </a>
+            <a href="{% url 'retro_board' slug=project.slug pk=cycle.pk %}?stage=DISCUSS"
+               class="px-3.5 py-1.5 rounded-xl font-semibold transition {% if active_stage == 'DISCUSS' %}bg-indigo-600 text-white shadow-sm{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                4. Discuss ({{ discussion_topics|length }})
+            </a>
             <span class="text-slate-300">|</span>
             <span class="text-xs text-slate-400">Total Cards: {{ start_cards|length|add:stop_cards|length|add:continue_cards|length }}</span>
         </div>
 
-        {% if active_stage == 'VOTE' %}
+        {% if active_stage == 'DISCUSS' %}
+            <!-- DISCUSS STAGE VIEW -->
+            {% include "retrospectives/stages/discuss.html" with discussion_topics=discussion_topics project=project cycle=cycle is_facilitator=is_facilitator %}
+        {% elif active_stage == 'VOTE' %}
             <!-- VOTE STAGE VIEW -->
             {% include "retrospectives/stages/vote.html" with clusters_with_votes=clusters_with_votes remaining_votes=remaining_votes project=project cycle=cycle is_facilitator=is_facilitator %}
         {% elif active_stage == 'CLUSTER' %}

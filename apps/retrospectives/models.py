@@ -77,3 +77,43 @@ class ClusterVote(models.Model):
 
     def __str__(self):
         return f"Vote by {self.user.username} on {self.cluster.title}"
+
+
+class DiscussionTopic(models.Model):
+    """An ordered topic in the retrospective discussion agenda, derived from a topic cluster and vote tallies."""
+
+    class Status(models.TextChoices):
+        PENDING = "PENDING", "Pending"
+        DISCUSSED = "DISCUSSED", "Discussed"
+        SKIPPED = "SKIPPED", "Skipped"
+        DEFERRED = "DEFERRED", "Deferred"
+
+    session = models.ForeignKey(
+        RetrospectiveSession,
+        on_delete=models.CASCADE,
+        related_name="discussion_topics",
+    )
+    cluster = models.OneToOneField(
+        TopicCluster,
+        on_delete=models.CASCADE,
+        related_name="discussion_topic",
+        null=True,
+        blank=True,
+    )
+    title = models.CharField(max_length=255)
+    vote_count = models.PositiveIntegerField(default=0)
+    order = models.PositiveIntegerField(default=0)
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Discussion Topic"
+        verbose_name_plural = "Discussion Topics"
+        ordering = ["order", "created_at"]
+
+    def __str__(self):
+        return f"#{self.order} {self.title} ({self.vote_count} votes) - {self.get_status_display()}"

@@ -5,13 +5,14 @@ from .views import (
     ClusterDeleteView,
     ClusterTitleView,
     ClusterUpdateView,
+    ClusterVoteCastView,
+    ClusterVoteRetractView,
     RetroBoardView,
+    RetroCardMoveView,
+    RetroCloseVotingView,
     RetroRevealView,
     RetroRunClusteringView,
     RetroStageTransitionView,
-    RetroCardMoveView,
-    ClusterVoteCastView,
-    ClusterVoteRetractView,
 )
 
 urlpatterns = [
@@ -26,4 +27,6 @@ urlpatterns = [
     path("retro/cards/<int:card_id>/move/", RetroCardMoveView.as_view(), name="retro_card_move"),
     path("retro/clusters/<int:cluster_id>/vote/", ClusterVoteCastView.as_view(), name="cluster_vote_cast"),
     path("retro/clusters/<int:cluster_id>/retract/", ClusterVoteRetractView.as_view(), name="cluster_vote_retract"),
+    path("projects/<slug:slug>/cycles/<int:pk>/retro/vote/close/", RetroCloseVotingView.as_view(), name="retro_close_voting"),
 ]
+

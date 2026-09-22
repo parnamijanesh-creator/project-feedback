@@ -2,6 +2,7 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.db.models import Count
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404, redirect, render
@@ -10,7 +11,7 @@ from django.views import View
 
 from apps.cycles.models import FeedbackCard, FeedbackCycle
 from apps.projects.models import Project, ProjectMember
-from .models import ClusterVote, RetrospectiveSession, TopicCluster
+from .models import ClusterVote, DiscussionTopic, RetrospectiveSession, TopicCluster
 
 
 def _check_membership(request, project):
@@ -39,6 +40,7 @@ class RetroBoardView(LoginRequiredMixin, View):
         active_stage = None
         clusters_with_votes = []
         remaining_votes = 3
+        discussion_topics = []
 
         if retro_session:
             # Query all cards with relations
@@ -64,6 +66,12 @@ class RetroBoardView(LoginRequiredMixin, View):
                 c.my_votes = user_vote_counts.get(c.id, 0)
                 clusters_with_votes.append(c)
 
+            discussion_topics = list(
+                retro_session.discussion_topics.select_related("cluster")
+                .prefetch_related("cluster__cards")
+                .order_by("order", "created_at")
+            )
+
         context = {
             "project": project,
             "cycle": cycle,
@@ -78,6 +86,7 @@ class RetroBoardView(LoginRequiredMixin, View):
             "stage_choices": RetrospectiveSession.Stage.choices,
             "clusters_with_votes": clusters_with_votes,
             "remaining_votes": remaining_votes,
+            "discussion_topics": discussion_topics,
         }
         return render(request, "retrospectives/board.html", context)
 
@@ -474,3 +483,54 @@ class ClusterVoteRetractView(LoginRequiredMixin, View):
             "user_votes": user_cluster_votes,
             "remaining_votes": remaining_votes,
         })
+
+
+class RetroCloseVotingView(LoginRequiredMixin, View):
+    """Concludes voting, aggregates cluster votes, generates ordered agenda, and transitions to DISCUSS."""
+
+    def post(self, request, slug, pk):
+        project = get_object_or_404(Project, slug=slug)
+        membership = _check_membership(request, project)
+        if membership.role != ProjectMember.Role.FACILITATOR:
+            raise PermissionDenied("Only project facilitators can close voting and generate the agenda.")
+
+        cycle = get_object_or_404(FeedbackCycle, pk=pk, project=project)
+        if cycle.status == FeedbackCycle.Status.COMPLETED:
+            raise PermissionDenied("Retrospective is completed and cannot be modified.")
+
+        retro_session = getattr(cycle, "retro_session", None)
+        if not retro_session:
+            messages.error(request, "Retrospective session must be started first.")
+            return redirect("retro_board", slug=slug, pk=pk)
+
+        # Transition session stage to DISCUSS
+        retro_session.current_stage = RetrospectiveSession.Stage.DISCUSS
+        retro_session.save(update_fields=["current_stage"])
+
+        # Aggregate votes per cluster and resolve ties deterministically (created_at asc, id asc)
+        clusters = list(
+            retro_session.clusters.annotate(tally=Count("votes")).order_by("-tally", "created_at", "id")
+        )
+
+        # Clean up any existing topics for this session to ensure idempotency
+        retro_session.discussion_topics.all().delete()
+
+        topics = []
+        for order, cluster in enumerate(clusters, start=1):
+            topics.append(
+                DiscussionTopic(
+                    session=retro_session,
+                    cluster=cluster,
+                    title=cluster.title,
+                    vote_count=cluster.tally,
+                    order=order,
+                    status=DiscussionTopic.Status.PENDING,
+                )
+            )
+
+        if topics:
+            DiscussionTopic.objects.bulk_create(topics)
+
+        messages.success(request, "Voting concluded! Discussion agenda generated.")
+        return redirect("retro_board", slug=slug, pk=pk)
+
