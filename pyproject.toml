@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "project-feedback"
+version = "0.1.0"
+description = "Weekly Team Feedback Tool - Start, Stop, Continue retrospective and AI action tracking"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "parnamijanesh-creator" }
+]
+dependencies = [
+    "Django>=5.0,<5.2",
+    "django-environ>=0.11.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-django>=4.8.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["config*", "apps*"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.local"
+python_files = ["test_*.py", "*_test.py"]

@@ -8,6 +8,8 @@ env/
 venv/
 .venv/
 ENV/
+*.egg-info/
+.pytest_cache/
 
 # Django
 *.log
