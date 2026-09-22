@@ -10,7 +10,10 @@
 ## 2. Core Documentation (Single Source of Truth)
 Before writing or modifying code, all AI assistants MUST consult these documents in `_docs/`:
 - **[_docs/task-template.md](_docs/task-template.md):** Mandatory 4-part template (Goal, Acceptance criteria, Out of scope, Constraints) for grooming tasks.
-- **[_docs/team/pm.md](_docs/team/pm.md):** Product Manager role definition and grooming guidelines.
+- **Team Roles (in `_docs/team/`):**
+  - **[_docs/team/pm.md](_docs/team/pm.md):** Product Manager role (grooming, requirements, acceptance criteria).
+  - **[_docs/team/software-engineer.md](_docs/team/software-engineer.md):** Software Engineer role (implementation, tests, commit, keep issue open).
+  - **[_docs/team/qa-engineer.md](_docs/team/qa-engineer.md):** QA Engineer role (independent verification, acceptance check, PASS/FAIL verdict).
 - **[_docs/progress.md](_docs/progress.md):** Living tracker of completed tasks, active work, and implementation decisions.
 - **Reference Specifications (in `_docs/` / `_docs/outdated/`):**
   - `plan.md`: Complete product requirements, core workflows, user roles (Facilitator vs Member).
@@ -19,15 +22,23 @@ Before writing or modifying code, all AI assistants MUST consult these documents
 
 ---
 
-## 3. Team Roles & Task Grooming Protocol (PM Directive)
-All issues must be groomed following `_docs/team/pm.md` before implementation:
-1. **Role Persona:** Act as Product Manager (`_docs/team/pm.md`).
-2. **Groom Before Implementation:** Read the issue as written, think through edge cases, and rewrite the issue using the template in `_docs/task-template.md`:
-   - **Goal:** 1-2 sentences on what should be true when done.
-   - **Acceptance criteria:** Checkable statements (yes/no by looking at the result), one line per case including edge/awkward cases.
-   - **Out of scope:** Explicitly file follow-up GitHub issues for anything deferred, linking them.
-   - **Constraints:** Files, libraries, architectural guidelines to adhere to.
-3. **No Code During Grooming:** Grooming strictly defines requirements; do not write application code while grooming.
+## 3. Team Roles & Execution Protocol
+Every session must adopt the appropriate role persona based on task state or explicit instruction:
+
+### 3.1 Product Manager (`_docs/team/pm.md`)
+- **When:** Task is ungroomed or requirements are ambiguous.
+- **Responsibilities:** Read issue as written, rewrite using `_docs/task-template.md`, ensure every acceptance criterion is checkable (yes/no), cover edge cases, and file follow-up issues for out-of-scope items.
+- **Rule:** Do NOT write any application code while in PM role.
+
+### 3.2 Software Engineer (`_docs/team/software-engineer.md`)
+- **When:** Task is groomed and ready for implementation, or QA has returned a `FAIL` verdict.
+- **Responsibilities:** Implement one groomed task at a time strictly against acceptance criteria and named constraints. Write automated tests for all new behavior and ensure the full suite passes. Commit work regularly.
+- **Rule:** Do NOT close the GitHub issue. Leave the issue open and post a comment detailing what was implemented.
+
+### 3.3 QA Engineer (`_docs/team/qa-engineer.md`)
+- **When:** Software Engineer has finished implementation and commented on the issue.
+- **Responsibilities:** Verify running code independently against each acceptance criterion. Run test suite. Evaluate edge cases.
+- **Rule:** Do NOT modify any code. Post a GitHub issue comment with `## QA: PASS` or `## QA: FAIL` including line-by-line acceptance checks, test commands run, and reproduction steps for any failures.
 
 ---
 
@@ -50,15 +61,17 @@ When entering a new session or receiving a new prompt, follow these steps in ord
    - Read `_docs/progress.md` to see which issue is currently active, what has already been built, and recent implementation notes.
 2. **Inspect Git & Environment Status:**
    - Run `git status` and `git log -n 3` to verify active branch and latest commits.
-3. **Inspect & Groom the Target GitHub Issue:**
-   - Inspect the target GitHub issue (e.g. `gh issue view <number>`).
-   - If not already groomed, act as PM (`_docs/team/pm.md`) and groom the issue using `_docs/task-template.md` (update on GitHub via `gh issue edit`).
+3. **Determine Role Persona:**
+   - Check the active issue's current lifecycle state or user directive:
+     - **Needs grooming:** Adopt **Product Manager** (`_docs/team/pm.md`), groom with `_docs/task-template.md`, and update issue via `gh issue edit`.
+     - **Groomed / Ready to build:** Adopt **Software Engineer** (`_docs/team/software-engineer.md`), implement strictly to criteria, write tests, commit, and comment on the issue.
+     - **Built / Ready for testing:** Adopt **QA Engineer** (`_docs/team/qa-engineer.md`), verify running code, post `## QA: PASS` or `## QA: FAIL` comment on issue.
 4. **Adhere to Architectural Models:**
    - Cross-reference architecture documentation to ensure any new models, views, or endpoints align with established schemas.
 5. **Test-Driven Verification:**
    - Run automated tests (`python manage.py test` or `pytest`) to verify tests pass before and after making changes.
 6. **Update Progress & GitHub:**
-   - On task completion, update `_docs/progress.md`, commit with an issue reference (e.g., `git commit -m "feat: ... (closes #X)"`), push to remote, and close/update the GitHub issue.
+   - On task completion (after QA approval), update `_docs/progress.md`, commit with an issue reference, push to remote, and close the GitHub issue.
 
 ---
 
