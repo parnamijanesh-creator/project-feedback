@@ -7,11 +7,12 @@ from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.views import View
 
 from apps.cycles.models import FeedbackCard, FeedbackCycle
 from apps.projects.models import Project, ProjectMember
-from .models import ClusterVote, DiscussionTopic, RetrospectiveSession, TopicCluster
+from .models import ClusterVote, DiscussionTopic, RetrospectiveSession, TopicCluster, TopicNote
 
 
 def _check_membership(request, project):
@@ -41,6 +42,7 @@ class RetroBoardView(LoginRequiredMixin, View):
         clusters_with_votes = []
         remaining_votes = 3
         discussion_topics = []
+        is_locked = False
 
         if retro_session:
             # Query all cards with relations
@@ -53,6 +55,11 @@ class RetroBoardView(LoginRequiredMixin, View):
 
             # Stage from URL query param override or default to session current_stage
             active_stage = request.GET.get("stage") or retro_session.current_stage
+
+            is_locked = (
+                retro_session.current_stage == RetrospectiveSession.Stage.SUMMARY
+                or cycle.status == FeedbackCycle.Status.COMPLETED
+            )
 
             # Calculate user's voting state without leaking collective counts
             user_votes = ClusterVote.objects.filter(cluster__session=retro_session, user=request.user)
@@ -68,7 +75,7 @@ class RetroBoardView(LoginRequiredMixin, View):
 
             discussion_topics = list(
                 retro_session.discussion_topics.select_related("cluster")
-                .prefetch_related("cluster__cards")
+                .prefetch_related("cluster__cards", "notes__author")
                 .order_by("order", "created_at")
             )
 
@@ -87,8 +94,10 @@ class RetroBoardView(LoginRequiredMixin, View):
             "clusters_with_votes": clusters_with_votes,
             "remaining_votes": remaining_votes,
             "discussion_topics": discussion_topics,
+            "is_locked": is_locked,
         }
         return render(request, "retrospectives/board.html", context)
+
 
 
 class RetroRevealView(LoginRequiredMixin, View):
@@ -533,4 +542,164 @@ class RetroCloseVotingView(LoginRequiredMixin, View):
 
         messages.success(request, "Voting concluded! Discussion agenda generated.")
         return redirect("retro_board", slug=slug, pk=pk)
+
+
+class TopicStatusUpdateView(LoginRequiredMixin, View):
+    """Updates the status of a discussion topic (Discussed, Skipped, Deferred, Pending)."""
+
+    def post(self, request, topic_id):
+        topic = get_object_or_404(
+            DiscussionTopic.objects.select_related("session__cycle__project", "cluster"),
+            pk=topic_id,
+        )
+        session = topic.session
+        project = session.cycle.project
+        membership = _check_membership(request, project)
+
+        if membership.role != ProjectMember.Role.FACILITATOR:
+            raise PermissionDenied("Only project facilitators can update discussion topic status.")
+
+        if (
+            session.current_stage == RetrospectiveSession.Stage.SUMMARY
+            or session.cycle.status == FeedbackCycle.Status.COMPLETED
+        ):
+            raise PermissionDenied("Discussion is locked.")
+
+        new_status = request.POST.get("status")
+        if new_status not in DiscussionTopic.Status.values:
+            return HttpResponseBadRequest("Invalid topic status.")
+
+        topic.status = new_status
+        topic.save(update_fields=["status"])
+
+        is_htmx = getattr(request, "htmx", False) or request.headers.get("HX-Request") == "true"
+        if is_htmx:
+            return render(
+                request,
+                "retrospectives/partials/topic_item.html",
+                {
+                    "topic": topic,
+                    "project": project,
+                    "cycle": session.cycle,
+                    "is_facilitator": True,
+                    "is_locked": False,
+                    "csrf_token": get_token(request),
+                },
+            )
+
+        messages.success(request, f"Topic status updated to {topic.get_status_display()}.")
+        return redirect(
+            reverse("retro_board", kwargs={"slug": project.slug, "pk": session.cycle.pk})
+            + "?stage=DISCUSS"
+        )
+
+
+class TopicNoteCreateView(LoginRequiredMixin, View):
+    """Adds a shared in-meeting note to a discussion topic."""
+
+    def post(self, request, topic_id):
+        topic = get_object_or_404(
+            DiscussionTopic.objects.select_related("session__cycle__project"), pk=topic_id
+        )
+        session = topic.session
+        project = session.cycle.project
+        membership = _check_membership(request, project)
+
+        if (
+            session.current_stage == RetrospectiveSession.Stage.SUMMARY
+            or session.cycle.status == FeedbackCycle.Status.COMPLETED
+        ):
+            raise PermissionDenied("Discussion is locked.")
+
+        text = request.POST.get("text", "").strip()
+        is_htmx = getattr(request, "htmx", False) or request.headers.get("HX-Request") == "true"
+        is_facilitator = membership.role == ProjectMember.Role.FACILITATOR
+
+        if not text:
+            if is_htmx:
+                return render(
+                    request,
+                    "retrospectives/partials/topic_note_form.html",
+                    {
+                        "topic": topic,
+                        "project": project,
+                        "cycle": session.cycle,
+                        "error": "Note cannot be blank.",
+                        "csrf_token": get_token(request),
+                    },
+                    status=422,
+                )
+            messages.error(request, "Note cannot be blank.")
+            return redirect(
+                reverse("retro_board", kwargs={"slug": project.slug, "pk": session.cycle.pk})
+                + "?stage=DISCUSS"
+            )
+
+        note = TopicNote.objects.create(topic=topic, author=request.user, text=text)
+
+        if is_htmx:
+            note_html = render_to_string(
+                "retrospectives/partials/topic_note_item.html",
+                {
+                    "note": note,
+                    "project": project,
+                    "cycle": session.cycle,
+                    "is_facilitator": is_facilitator,
+                    "csrf_token": get_token(request),
+                },
+                request=request,
+            )
+            form_html = render_to_string(
+                "retrospectives/partials/topic_note_form.html",
+                {
+                    "topic": topic,
+                    "project": project,
+                    "cycle": session.cycle,
+                    "csrf_token": get_token(request),
+                },
+                request=request,
+            )
+            output = f'{note_html}<div id="topic-{topic.id}-note-form-container" hx-swap-oob="true">{form_html}</div>'
+            return HttpResponse(output)
+
+        messages.success(request, "Note added.")
+        return redirect(
+            reverse("retro_board", kwargs={"slug": project.slug, "pk": session.cycle.pk})
+            + "?stage=DISCUSS"
+        )
+
+
+class TopicNoteDeleteView(LoginRequiredMixin, View):
+    """Deletes an in-meeting note by author or project facilitator."""
+
+    def post(self, request, note_id):
+        note = get_object_or_404(
+            TopicNote.objects.select_related("topic__session__cycle__project"), pk=note_id
+        )
+        session = note.topic.session
+        project = session.cycle.project
+        membership = _check_membership(request, project)
+
+        if (
+            session.current_stage == RetrospectiveSession.Stage.SUMMARY
+            or session.cycle.status == FeedbackCycle.Status.COMPLETED
+        ):
+            raise PermissionDenied("Discussion is locked.")
+
+        is_facilitator = membership.role == ProjectMember.Role.FACILITATOR
+        if note.author != request.user and not is_facilitator:
+            raise PermissionDenied("You do not have permission to delete this note.")
+
+        note.delete()
+
+        is_htmx = getattr(request, "htmx", False) or request.headers.get("HX-Request") == "true"
+        if is_htmx:
+            return HttpResponse("")
+
+        messages.success(request, "Note deleted.")
+        return redirect(
+            reverse("retro_board", kwargs={"slug": project.slug, "pk": session.cycle.pk})
+            + "?stage=DISCUSS"
+        )
+
 

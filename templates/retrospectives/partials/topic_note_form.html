@@ -1,0 +1,21 @@
+<form hx-post="{% url 'topic_note_create' topic_id=topic.id %}"
+      hx-target="#topic-{{ topic.id }}-notes-list"
+      hx-swap="beforeend"
+      class="space-y-2">
+    {% csrf_token %}
+    <div>
+        <textarea name="text"
+                  rows="2"
+                  placeholder="Add a shared note, takeaway, or decision point..."
+                  class="w-full text-xs p-2.5 rounded-xl border {% if error %}border-rose-400 bg-rose-50/20{% else %}border-slate-300 bg-white{% endif %} focus:ring-1 focus:ring-indigo-500 focus:outline-none placeholder-slate-400"></textarea>
+        {% if error %}
+            <p class="text-[11px] font-semibold text-rose-600 mt-1">{{ error }}</p>
+        {% endif %}
+    </div>
+    <div class="flex justify-end">
+        <button type="submit"
+                class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition">
+            Add Note
+        </button>
+    </div>
+</form>

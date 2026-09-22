@@ -13,6 +13,9 @@ from .views import (
     RetroRevealView,
     RetroRunClusteringView,
     RetroStageTransitionView,
+    TopicNoteCreateView,
+    TopicNoteDeleteView,
+    TopicStatusUpdateView,
 )
 
 urlpatterns = [
@@ -28,5 +31,9 @@ urlpatterns = [
     path("retro/clusters/<int:cluster_id>/vote/", ClusterVoteCastView.as_view(), name="cluster_vote_cast"),
     path("retro/clusters/<int:cluster_id>/retract/", ClusterVoteRetractView.as_view(), name="cluster_vote_retract"),
     path("projects/<slug:slug>/cycles/<int:pk>/retro/vote/close/", RetroCloseVotingView.as_view(), name="retro_close_voting"),
+    path("retro/topics/<int:topic_id>/status/", TopicStatusUpdateView.as_view(), name="topic_status_update"),
+    path("retro/topics/<int:topic_id>/notes/", TopicNoteCreateView.as_view(), name="topic_note_create"),
+    path("retro/notes/<int:note_id>/delete/", TopicNoteDeleteView.as_view(), name="topic_note_delete"),
 ]
+
 

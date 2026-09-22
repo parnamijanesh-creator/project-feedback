@@ -1,0 +1,154 @@
+<div id="topic-{{ topic.id }}" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition hover:border-indigo-200">
+    <!-- Topic Header Bar -->
+    <div class="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-50/60 border-b border-slate-100">
+        <div class="flex items-start gap-3">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-indigo-600 text-white font-extrabold text-sm shadow-sm shadow-indigo-200 shrink-0">
+                #{{ topic.order }}
+            </span>
+            <div>
+                <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                    <span>{{ topic.title }}</span>
+                    {% if topic.cluster and topic.cluster.is_ai_generated %}
+                        <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">AI</span>
+                    {% endif %}
+                </h3>
+                {% if topic.cluster and topic.cluster.description %}
+                    <p class="text-xs text-slate-500 mt-0.5">{{ topic.cluster.description }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+            <!-- Vote Count Badge -->
+            {% if topic.vote_count > 0 %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
+                    🗳️ {{ topic.vote_count }} vote{{ topic.vote_count|pluralize }}
+                </span>
+            {% else %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                    0 votes
+                </span>
+            {% endif %}
+
+            <!-- Current Status Badge -->
+            <span id="topic-{{ topic.id }}-status-badge" class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold border
+                {% if topic.status == 'DISCUSSED' %}bg-emerald-50 text-emerald-800 border-emerald-200
+                {% elif topic.status == 'SKIPPED' %}bg-amber-50 text-amber-800 border-amber-200
+                {% elif topic.status == 'DEFERRED' %}bg-sky-50 text-sky-800 border-sky-200
+                {% else %}bg-slate-100 text-slate-700 border-slate-200{% endif %}">
+                ● {{ topic.get_status_display }}
+            </span>
+
+            <!-- Facilitator Status Controls -->
+            {% if is_facilitator and not is_locked %}
+                <div class="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 shadow-xs text-xs">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 px-1.5">Mark as:</span>
+                    <button type="button"
+                            hx-post="{% url 'topic_status_update' topic_id=topic.id %}"
+                            hx-vals='{"status": "DISCUSSED"}'
+                            hx-target="#topic-{{ topic.id }}"
+                            hx-swap="outerHTML"
+                            class="px-2 py-1 rounded-lg font-semibold transition {% if topic.status == 'DISCUSSED' %}bg-emerald-600 text-white{% else %}text-emerald-700 hover:bg-emerald-50{% endif %}">
+                        Discussed
+                    </button>
+                    <button type="button"
+                            hx-post="{% url 'topic_status_update' topic_id=topic.id %}"
+                            hx-vals='{"status": "SKIPPED"}'
+                            hx-target="#topic-{{ topic.id }}"
+                            hx-swap="outerHTML"
+                            class="px-2 py-1 rounded-lg font-semibold transition {% if topic.status == 'SKIPPED' %}bg-amber-600 text-white{% else %}text-amber-700 hover:bg-amber-50{% endif %}">
+                        Skipped
+                    </button>
+                    <button type="button"
+                            hx-post="{% url 'topic_status_update' topic_id=topic.id %}"
+                            hx-vals='{"status": "DEFERRED"}'
+                            hx-target="#topic-{{ topic.id }}"
+                            hx-swap="outerHTML"
+                            class="px-2 py-1 rounded-lg font-semibold transition {% if topic.status == 'DEFERRED' %}bg-sky-600 text-white{% else %}text-sky-700 hover:bg-sky-50{% endif %}">
+                        Deferred
+                    </button>
+                    {% if topic.status != 'PENDING' %}
+                        <button type="button"
+                                hx-post="{% url 'topic_status_update' topic_id=topic.id %}"
+                                hx-vals='{"status": "PENDING"}'
+                                hx-target="#topic-{{ topic.id }}"
+                                hx-swap="outerHTML"
+                                class="px-2 py-1 rounded-lg font-semibold text-slate-500 hover:bg-slate-100 transition">
+                            Reset
+                        </button>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Content Grid (Cards & Notes) -->
+    <div class="p-5 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Left Column: Feedback Cards Contained in Cluster -->
+        <div class="space-y-3">
+            <div class="flex items-center justify-between pb-1 border-b border-slate-100">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Contained Cards ({{ topic.cluster.cards.count|default:0 }})
+                </span>
+            </div>
+
+            <div class="space-y-2.5 max-h-96 overflow-y-auto pr-1">
+                {% for card in topic.cluster.cards.all %}
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5 text-xs">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold uppercase text-[10px] px-1.5 py-0.5 rounded
+                                {% if card.category == 'START' %}bg-emerald-100 text-emerald-800
+                                {% elif card.category == 'STOP' %}bg-rose-100 text-rose-800
+                                {% else %}bg-sky-100 text-sky-800{% endif %}">
+                                {{ card.get_category_display }}
+                            </span>
+                            {% if card.is_anonymous %}
+                                <span class="text-slate-400 font-medium text-[11px]">🕵️ Anonymous</span>
+                            {% else %}
+                                <span class="text-slate-600 font-medium text-[11px]">{{ card.user.username }}</span>
+                            {% endif %}
+                        </div>
+                        <p class="text-slate-800 leading-relaxed whitespace-pre-wrap">{{ card.text }}</p>
+                    </div>
+                {% empty %}
+                    <div class="py-4 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                        No cards in this cluster.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Right Column: In-Meeting Notes & Decision Points -->
+        <div class="space-y-3 bg-slate-50/50 p-4 rounded-xl border border-slate-100 flex flex-col justify-between">
+            <div class="space-y-3">
+                <div class="flex items-center justify-between pb-1 border-b border-slate-200">
+                    <span class="text-xs font-bold uppercase tracking-wider text-indigo-700 flex items-center gap-1.5">
+                        <span>📝</span>
+                        <span>Meeting Notes &amp; Decisions</span>
+                    </span>
+                    <span class="text-[11px] text-slate-400">Shared with team</span>
+                </div>
+
+                <!-- Notes List -->
+                <div id="topic-{{ topic.id }}-notes-list" class="space-y-2.5 max-h-64 overflow-y-auto pr-1">
+                    {% for note in topic.notes.all %}
+                        {% include "retrospectives/partials/topic_note_item.html" with note=note is_facilitator=is_facilitator is_locked=is_locked %}
+                    {% empty %}
+                        <!-- Empty placeholder handled gracefully -->
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Note Input Form / Lock Message -->
+            <div id="topic-{{ topic.id }}-note-form-container" class="pt-3 border-t border-slate-200 mt-2">
+                {% if is_locked %}
+                    <div class="p-3 bg-slate-100 rounded-xl text-center text-xs text-slate-500 italic">
+                        🔒 Session is completed or locked. Notes and status changes are disabled.
+                    </div>
+                {% else %}
+                    {% include "retrospectives/partials/topic_note_form.html" with topic=topic project=project cycle=cycle %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

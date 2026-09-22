@@ -117,3 +117,28 @@ class DiscussionTopic(models.Model):
 
     def __str__(self):
         return f"#{self.order} {self.title} ({self.vote_count} votes) - {self.get_status_display()}"
+
+
+class TopicNote(models.Model):
+    """An in-meeting note or decision point recorded on a discussion topic."""
+
+    topic = models.ForeignKey(
+        DiscussionTopic,
+        on_delete=models.CASCADE,
+        related_name="notes",
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="topic_notes",
+    )
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Topic Note"
+        verbose_name_plural = "Topic Notes"
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"Note by {self.author.username} on Topic #{self.topic.order}"
