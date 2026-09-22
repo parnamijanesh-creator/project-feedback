@@ -2,7 +2,7 @@
 
 ## Current Status
 - **Active Phase:** Phase 3 — Interactive Retrospective Board
-- **Current Active Task:** [Issue #13: 13. Voting Close and Ranked Discussion Agenda](https://github.com/parnamijanesh-creator/project-feedback/issues/13)
+- **Current Active Task:** [Issue #14: 14. Interactive Discussion Management and In-Meeting Notes](https://github.com/parnamijanesh-creator/project-feedback/issues/14)
 - **Last Updated:** 2026-09-22
 
 ---
@@ -23,8 +23,9 @@
 | **#10** | [10. Manual Cluster Organization and Editing](https://github.com/parnamijanesh-creator/project-feedback/issues/10) | ✅ **Completed** | Cluster CRUD, unclustered cards pool, inline rename/delete, commit `12209ad`, verified by QA |
 | **#11** | [11. Drag-and-Drop Card Clustering with SortableJS](https://github.com/parnamijanesh-creator/project-feedback/issues/11) | ✅ **Completed** | SortableJS 1.15 integration, async move endpoint, revert fallback, commit `dfdd7a3`, verified by QA |
 | **#12** | [12. Secret Voting on Discussion Clusters](https://github.com/parnamijanesh-creator/project-feedback/issues/12) | ✅ **Completed** | ClusterVote model, 3-vote limit per user, masked live counts, commit `4f67b71`, verified by QA |
-| **#13** | [13. Voting Close and Ranked Discussion Agenda](https://github.com/parnamijanesh-creator/project-feedback/issues/13) | ⏳ **Next Up** | DiscussionTopic ranking and priority ordering |
-| **#14** | [14. Interactive Discussion Management and In-Meeting Notes](https://github.com/parnamijanesh-creator/project-feedback/issues/14) | ⬜ Not Started | Discussed/Skipped/Deferred status & notes |
+| **#13** | [13. Voting Close and Ranked Discussion Agenda](https://github.com/parnamijanesh-creator/project-feedback/issues/13) | ✅ **Completed** | DiscussionTopic model, facilitator close voting, tie-breaking, commit `9bc81cb`, verified by QA |
+| **#14** | [14. Interactive Discussion Management and In-Meeting Notes](https://github.com/parnamijanesh-creator/project-feedback/issues/14) | ⏳ **Next Up** | Discussed/Skipped/Deferred status & notes |
+
 | **#15** | [15. Django Channels Setup and Retrospective WebSocket Consumer](https://github.com/parnamijanesh-creator/project-feedback/issues/15) | ⬜ Not Started | ASGI WebSocket consumer & Redis channel layer |
 | **#16** | [16. Client-Side Real-Time Board Synchronization](https://github.com/parnamijanesh-creator/project-feedback/issues/16) | ⬜ Not Started | Live board broadcast listeners & HTMX swaps |
 | **#17** | [17. Meeting Record Ingestion (Upload Media and Paste Text)](https://github.com/parnamijanesh-creator/project-feedback/issues/17) | ⬜ Not Started | Audio/video upload & text transcript intake |
@@ -54,3 +55,5 @@
 - **2026-09-22:** Completed Task 9 (Issue #9): Implemented AI-assisted thematic card clustering service using OpenAI/Pydantic structured output, `TopicCluster` model, foreign card sanitization, graceful error fallbacks, and facilitator trigger view. Passed QA verification.
 - **2026-09-22:** Completed Task 10 (Issue #10): Implemented manual cluster CRUD operations, inline title editing, deletion with card dislodgment and unclustered cards pool OOB swap, authorization and closed cycle safeguards. Passed QA verification.
 - **2026-09-22:** Completed Task 11 (Issue #11): Implemented drag-and-drop card clustering with SortableJS, async persistence endpoint `/retro/cards/<id>/move/`, same-container no-op handling, cross-project isolation, and client-side error rollback. Passed QA verification.
+- **2026-09-22:** Completed Task 12 (Issue #12): Implemented `ClusterVote` model, strict 3-vote limit per user, stacked voting, masked vote counts, and HTMX vote allocation partials. Passed QA verification.
+- **2026-09-22:** Completed Task 13 (Issue #13): Implemented `DiscussionTopic` model, facilitator-only voting close action, deterministic tie-breaking, unmasked vote tallies, and ranked discussion agenda rendering with contained cards. Passed QA verification.
