@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — Weekly Team Feedback Tool{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<div class="space-y-6">
+    <!-- Welcome Header Banner -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">Welcome back, {{ user.username }}!</h1>
+            <p class="text-sm text-slate-500 mt-1">Logged in as <span class="font-medium text-slate-700">{{ user.email }}</span></p>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                Active Session
+            </span>
+        </div>
+    </div>
+
+    <!-- Quick Stats / Actions Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold mb-4">
+                📁
+            </div>
+            <h3 class="font-semibold text-slate-900">Projects</h3>
+            <p class="text-sm text-slate-500 mt-1">Manage team projects, invite members, and configure retrospective settings.</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold mb-4">
+                🔄
+            </div>
+            <h3 class="font-semibold text-slate-900">Feedback Cycles</h3>
+            <p class="text-sm text-slate-500 mt-1">Collect weekly Start, Stop, Continue feedback asynchronously with full anonymity.</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold mb-4">
+                💡
+            </div>
+            <h3 class="font-semibold text-slate-900">AI Retrospectives</h3>
+            <p class="text-sm text-slate-500 mt-1">Cluster feedback cards, vote secretly, and extract decisions and action items with AI.</p>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="py-16 text-center max-w-2xl mx-auto space-y-6">
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600 text-white shadow-xl shadow-indigo-200">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+        </svg>
+    </div>
+    <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight sm:text-5xl">
+        Weekly Team Feedback Tool
+    </h1>
+    <p class="text-lg text-slate-600 leading-relaxed">
+        Collect honest weekly feedback (Start, Stop, Continue), turn submissions into a focused retrospective, and document decisions and action items with AI assistance.
+    </p>
+    <div class="pt-4 flex justify-center gap-4">
+        <a href="{% url 'register' %}" class="px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition">
+            Get Started
+        </a>
+        <a href="{% url 'login' %}" class="px-6 py-3 rounded-xl bg-white border border-slate-300 text-slate-700 font-semibold shadow-sm hover:bg-slate-50 transition">
+            Sign In
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
