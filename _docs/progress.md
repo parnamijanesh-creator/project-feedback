@@ -2,7 +2,7 @@
 
 ## Current Status
 - **Active Phase:** Phase 3 — Interactive Retrospective Board
-- **Current Active Task:** [Issue #12: 12. Secret Voting on Discussion Clusters](https://github.com/parnamijanesh-creator/project-feedback/issues/12)
+- **Current Active Task:** [Issue #13: 13. Voting Close and Ranked Discussion Agenda](https://github.com/parnamijanesh-creator/project-feedback/issues/13)
 - **Last Updated:** 2026-09-22
 
 ---
@@ -22,8 +22,8 @@
 | **#9** | [9. AI-Assisted Thematic Card Clustering Service](https://github.com/parnamijanesh-creator/project-feedback/issues/9) | ✅ **Completed** | Structured output clustering service, TopicCluster model, card associations, commit `80efeae`, verified by QA |
 | **#10** | [10. Manual Cluster Organization and Editing](https://github.com/parnamijanesh-creator/project-feedback/issues/10) | ✅ **Completed** | Cluster CRUD, unclustered cards pool, inline rename/delete, commit `12209ad`, verified by QA |
 | **#11** | [11. Drag-and-Drop Card Clustering with SortableJS](https://github.com/parnamijanesh-creator/project-feedback/issues/11) | ✅ **Completed** | SortableJS 1.15 integration, async move endpoint, revert fallback, commit `dfdd7a3`, verified by QA |
-| **#12** | [12. Secret Voting on Discussion Clusters](https://github.com/parnamijanesh-creator/project-feedback/issues/12) | ⏳ **Next Up** | 3-vote limit per user, masked live counts |
-| **#13** | [13. Voting Close and Ranked Discussion Agenda](https://github.com/parnamijanesh-creator/project-feedback/issues/13) | ⬜ Not Started | DiscussionTopic ranking and priority ordering |
+| **#12** | [12. Secret Voting on Discussion Clusters](https://github.com/parnamijanesh-creator/project-feedback/issues/12) | ✅ **Completed** | ClusterVote model, 3-vote limit per user, masked live counts, commit `4f67b71`, verified by QA |
+| **#13** | [13. Voting Close and Ranked Discussion Agenda](https://github.com/parnamijanesh-creator/project-feedback/issues/13) | ⏳ **Next Up** | DiscussionTopic ranking and priority ordering |
 | **#14** | [14. Interactive Discussion Management and In-Meeting Notes](https://github.com/parnamijanesh-creator/project-feedback/issues/14) | ⬜ Not Started | Discussed/Skipped/Deferred status & notes |
 | **#15** | [15. Django Channels Setup and Retrospective WebSocket Consumer](https://github.com/parnamijanesh-creator/project-feedback/issues/15) | ⬜ Not Started | ASGI WebSocket consumer & Redis channel layer |
 | **#16** | [16. Client-Side Real-Time Board Synchronization](https://github.com/parnamijanesh-creator/project-feedback/issues/16) | ⬜ Not Started | Live board broadcast listeners & HTMX swaps |
