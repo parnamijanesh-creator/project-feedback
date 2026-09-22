@@ -10,7 +10,7 @@ from django.views import View
 
 from apps.cycles.models import FeedbackCard, FeedbackCycle
 from apps.projects.models import Project, ProjectMember
-from .models import RetrospectiveSession, TopicCluster
+from .models import ClusterVote, RetrospectiveSession, TopicCluster
 
 
 def _check_membership(request, project):
@@ -37,6 +37,8 @@ class RetroBoardView(LoginRequiredMixin, View):
         clusters = []
         unclustered_cards = []
         active_stage = None
+        clusters_with_votes = []
+        remaining_votes = 3
 
         if retro_session:
             # Query all cards with relations
@@ -44,11 +46,23 @@ class RetroBoardView(LoginRequiredMixin, View):
             start_cards = all_cards.filter(category=FeedbackCard.Category.START)
             stop_cards = all_cards.filter(category=FeedbackCard.Category.STOP)
             continue_cards = all_cards.filter(category=FeedbackCard.Category.CONTINUE)
-            clusters = retro_session.clusters.prefetch_related("cards").all()
+            clusters = list(retro_session.clusters.prefetch_related("cards").all())
             unclustered_cards = all_cards.filter(cluster=None)
 
             # Stage from URL query param override or default to session current_stage
             active_stage = request.GET.get("stage") or retro_session.current_stage
+
+            # Calculate user's voting state without leaking collective counts
+            user_votes = ClusterVote.objects.filter(cluster__session=retro_session, user=request.user)
+            user_total_votes = user_votes.count()
+            remaining_votes = max(0, 3 - user_total_votes)
+            user_vote_counts = {}
+            for v in user_votes:
+                user_vote_counts[v.cluster_id] = user_vote_counts.get(v.cluster_id, 0) + 1
+
+            for c in clusters:
+                c.my_votes = user_vote_counts.get(c.id, 0)
+                clusters_with_votes.append(c)
 
         context = {
             "project": project,
@@ -62,6 +76,8 @@ class RetroBoardView(LoginRequiredMixin, View):
             "unclustered_cards": unclustered_cards,
             "active_stage": active_stage,
             "stage_choices": RetrospectiveSession.Stage.choices,
+            "clusters_with_votes": clusters_with_votes,
+            "remaining_votes": remaining_votes,
         }
         return render(request, "retrospectives/board.html", context)
 
@@ -365,4 +381,96 @@ class RetroCardMoveView(LoginRequiredMixin, View):
             "card_id": card.pk,
             "cluster_id": target_cluster.pk,
             "message": f"Card moved to cluster '{target_cluster.title}'.",
+        })
+
+
+class ClusterVoteCastView(LoginRequiredMixin, View):
+    """Casts a vote on a topic cluster during the VOTE stage."""
+
+    def post(self, request, cluster_id):
+        cluster = get_object_or_404(TopicCluster, pk=cluster_id)
+        session = cluster.session
+        project = session.cycle.project
+        _check_membership(request, project)
+
+        if session.current_stage != RetrospectiveSession.Stage.VOTE:
+            raise PermissionDenied("Voting is only permitted during the VOTE stage.")
+
+        # Check strict 3-vote limit per user in this session
+        total_votes = ClusterVote.objects.filter(cluster__session=session, user=request.user).count()
+        if total_votes >= 3:
+            return HttpResponseBadRequest("You have reached the maximum allocation of 3 votes.")
+
+        # Create vote (supporting stacked votes on the same cluster)
+        ClusterVote.objects.create(cluster=cluster, user=request.user)
+
+        user_cluster_votes = ClusterVote.objects.filter(cluster=cluster, user=request.user).count()
+        total_votes = ClusterVote.objects.filter(cluster__session=session, user=request.user).count()
+        remaining_votes = max(0, 3 - total_votes)
+
+        is_htmx = getattr(request, "htmx", False) or request.headers.get("HX-Request") == "true"
+        if is_htmx:
+            widget_html = render_to_string(
+                "retrospectives/partials/vote_widget.html",
+                {
+                    "cluster": cluster,
+                    "user_votes": user_cluster_votes,
+                    "remaining_votes": remaining_votes,
+                    "csrf_token": get_token(request),
+                },
+                request=request,
+            )
+            counter_oob = f'<p id="voting-counter" hx-swap-oob="true" class="text-sm font-extrabold text-indigo-900">Remaining Votes: {remaining_votes} of 3</p>'
+            return HttpResponse(f"{widget_html}{counter_oob}")
+
+        return JsonResponse({
+            "success": True,
+            "cluster_id": cluster.pk,
+            "user_votes": user_cluster_votes,
+            "remaining_votes": remaining_votes,
+        })
+
+
+class ClusterVoteRetractView(LoginRequiredMixin, View):
+    """Retracts an allocated vote from a topic cluster during the VOTE stage."""
+
+    def post(self, request, cluster_id):
+        cluster = get_object_or_404(TopicCluster, pk=cluster_id)
+        session = cluster.session
+        project = session.cycle.project
+        _check_membership(request, project)
+
+        if session.current_stage != RetrospectiveSession.Stage.VOTE:
+            raise PermissionDenied("Voting is only permitted during the VOTE stage.")
+
+        vote = ClusterVote.objects.filter(cluster=cluster, user=request.user).last()
+        if not vote:
+            return HttpResponseBadRequest("You have no votes cast on this cluster to retract.")
+
+        vote.delete()
+
+        user_cluster_votes = ClusterVote.objects.filter(cluster=cluster, user=request.user).count()
+        total_votes = ClusterVote.objects.filter(cluster__session=session, user=request.user).count()
+        remaining_votes = max(0, 3 - total_votes)
+
+        is_htmx = getattr(request, "htmx", False) or request.headers.get("HX-Request") == "true"
+        if is_htmx:
+            widget_html = render_to_string(
+                "retrospectives/partials/vote_widget.html",
+                {
+                    "cluster": cluster,
+                    "user_votes": user_cluster_votes,
+                    "remaining_votes": remaining_votes,
+                    "csrf_token": get_token(request),
+                },
+                request=request,
+            )
+            counter_oob = f'<p id="voting-counter" hx-swap-oob="true" class="text-sm font-extrabold text-indigo-900">Remaining Votes: {remaining_votes} of 3</p>'
+            return HttpResponse(f"{widget_html}{counter_oob}")
+
+        return JsonResponse({
+            "success": True,
+            "cluster_id": cluster.pk,
+            "user_votes": user_cluster_votes,
+            "remaining_votes": remaining_votes,
         })

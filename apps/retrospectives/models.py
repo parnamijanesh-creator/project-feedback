@@ -1,4 +1,4 @@
-"""Domain models for Interactive Retrospective Sessions."""
+from django.conf import settings
 from django.db import models
 
 
@@ -53,3 +53,27 @@ class TopicCluster(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class ClusterVote(models.Model):
+    """An individual vote cast by a team member on a topic cluster."""
+
+    cluster = models.ForeignKey(
+        TopicCluster,
+        on_delete=models.CASCADE,
+        related_name="votes",
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="cluster_votes",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Cluster Vote"
+        verbose_name_plural = "Cluster Votes"
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"Vote by {self.user.username} on {self.cluster.title}"

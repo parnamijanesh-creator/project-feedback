@@ -1,0 +1,26 @@
+<div id="vote-widget-{{ cluster.id }}" class="flex items-center gap-2 bg-slate-50 px-2.5 py-1 rounded-xl border border-slate-200">
+    <button type="button"
+            hx-post="{% url 'cluster_vote_retract' cluster_id=cluster.id %}"
+            hx-target="#vote-widget-{{ cluster.id }}"
+            hx-swap="outerHTML"
+            {% if user_votes <= 0 %}disabled{% endif %}
+            class="w-6 h-6 flex items-center justify-center rounded-lg font-extrabold text-sm transition {% if user_votes > 0 %}bg-rose-100 hover:bg-rose-200 text-rose-700 cursor-pointer shadow-sm{% else %}bg-slate-100 text-slate-300 cursor-not-allowed opacity-50{% endif %}"
+            title="Retract vote">
+        −
+    </button>
+
+    <div class="flex items-center gap-1 min-w-[32px] justify-center text-xs font-bold text-slate-800" title="Your votes on this cluster">
+        <span>{{ user_votes }}</span>
+        <span class="text-[10px] text-slate-400 font-normal">vote{{ user_votes|pluralize }}</span>
+    </div>
+
+    <button type="button"
+            hx-post="{% url 'cluster_vote_cast' cluster_id=cluster.id %}"
+            hx-target="#vote-widget-{{ cluster.id }}"
+            hx-swap="outerHTML"
+            {% if remaining_votes <= 0 %}disabled{% endif %}
+            class="w-6 h-6 flex items-center justify-center rounded-lg font-extrabold text-sm transition {% if remaining_votes > 0 %}bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer shadow-sm{% else %}bg-slate-200 text-slate-400 cursor-not-allowed opacity-50{% endif %}"
+            title="Add vote">
+        +
+    </button>
+</div>
