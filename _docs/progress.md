@@ -2,7 +2,7 @@
 
 ## Current Status
 - **Active Phase:** Phase 3 — Interactive Retrospective Board
-- **Current Active Task:** [Issue #15: 15. Django Channels Setup and Retrospective WebSocket Consumer](https://github.com/parnamijanesh-creator/project-feedback/issues/15)
+- **Current Active Task:** [Issue #16: 16. Client-Side Real-Time Board Synchronization](https://github.com/parnamijanesh-creator/project-feedback/issues/16)
 - **Last Updated:** 2026-09-22
 
 ---
@@ -25,8 +25,8 @@
 | **#12** | [12. Secret Voting on Discussion Clusters](https://github.com/parnamijanesh-creator/project-feedback/issues/12) | ✅ **Completed** | ClusterVote model, 3-vote limit per user, masked live counts, commit `4f67b71`, verified by QA |
 | **#13** | [13. Voting Close and Ranked Discussion Agenda](https://github.com/parnamijanesh-creator/project-feedback/issues/13) | ✅ **Completed** | DiscussionTopic model, facilitator close voting, tie-breaking, commit `9bc81cb`, verified by QA |
 | **#14** | [14. Interactive Discussion Management and In-Meeting Notes](https://github.com/parnamijanesh-creator/project-feedback/issues/14) | ✅ **Completed** | TopicNote model, HTMX note add/delete, facilitator status controls, commit `bbee545`, verified by QA |
-| **#15** | [15. Django Channels Setup and Retrospective WebSocket Consumer](https://github.com/parnamijanesh-creator/project-feedback/issues/15) | ⏳ **Next Up** | ASGI WebSocket consumer & Redis channel layer |
-| **#16** | [16. Client-Side Real-Time Board Synchronization](https://github.com/parnamijanesh-creator/project-feedback/issues/16) | ⬜ Not Started | Live board broadcast listeners & HTMX swaps |
+| **#15** | [15. Django Channels Setup and Retrospective WebSocket Consumer](https://github.com/parnamijanesh-creator/project-feedback/issues/15) | ✅ **Completed** | Channels 4.x & Redis layer setup, RetrospectiveConsumer, commit `c1bcc3e`, verified by QA |
+| **#16** | [16. Client-Side Real-Time Board Synchronization](https://github.com/parnamijanesh-creator/project-feedback/issues/16) | ⏳ **Next Up** | Live board broadcast listeners & HTMX swaps |
 | **#17** | [17. Meeting Record Ingestion (Upload Media and Paste Text)](https://github.com/parnamijanesh-creator/project-feedback/issues/17) | ⬜ Not Started | Audio/video upload & text transcript intake |
 | **#18** | [18. Celery Task Infrastructure and Media Audio Extraction](https://github.com/parnamijanesh-creator/project-feedback/issues/18) | ⬜ Not Started | Celery worker & ffmpeg audio extraction |
 | **#19** | [19. Asynchronous Whisper Speech-to-Text Transcription](https://github.com/parnamijanesh-creator/project-feedback/issues/19) | ⬜ Not Started | Whisper API background transcription worker |
@@ -57,3 +57,5 @@
 - **2026-09-22:** Completed Task 12 (Issue #12): Implemented `ClusterVote` model, strict 3-vote limit per user, stacked voting, masked vote counts, and HTMX vote allocation partials. Passed QA verification.
 - **2026-09-22:** Completed Task 13 (Issue #13): Implemented `DiscussionTopic` model, facilitator-only voting close action, deterministic tie-breaking, unmasked vote tallies, and ranked discussion agenda rendering with contained cards. Passed QA verification.
 - **2026-09-22:** Completed Task 14 (Issue #14): Implemented `TopicNote` model, facilitator-only topic status controls (Discussed/Skipped/Deferred/Pending), shared in-meeting notes with inline author/timestamp, note deletion authorization, and stage lock enforcement. Passed QA verification.
+- **2026-09-22:** Completed Task 15 (Issue #15): Configured Channels 4.x and Redis layer (`channels_redis`), updated `config/asgi.py` with `ProtocolTypeRouter` and `AuthMiddlewareStack`, and implemented `RetrospectiveConsumer` with handshake auth, project membership validation, room group subscriptions, and typed broadcast handling. Passed QA verification.
+
