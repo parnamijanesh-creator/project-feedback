@@ -2,7 +2,7 @@
 
 ## Current Status
 - **Active Phase:** Phase 3 — Interactive Retrospective Board
-- **Current Active Task:** [Issue #11: 11. Drag-and-Drop Card Clustering with SortableJS](https://github.com/parnamijanesh-creator/project-feedback/issues/11)
+- **Current Active Task:** [Issue #12: 12. Secret Voting on Discussion Clusters](https://github.com/parnamijanesh-creator/project-feedback/issues/12)
 - **Last Updated:** 2026-09-22
 
 ---
@@ -21,8 +21,8 @@
 | **#8** | [8. Retrospective Session Model and Reveal Stage](https://github.com/parnamijanesh-creator/project-feedback/issues/8) | ✅ **Completed** | RetrospectiveSession model, 3-column reveal board, facilitator phase triggers, commit `a7a7034`, verified by QA |
 | **#9** | [9. AI-Assisted Thematic Card Clustering Service](https://github.com/parnamijanesh-creator/project-feedback/issues/9) | ✅ **Completed** | Structured output clustering service, TopicCluster model, card associations, commit `80efeae`, verified by QA |
 | **#10** | [10. Manual Cluster Organization and Editing](https://github.com/parnamijanesh-creator/project-feedback/issues/10) | ✅ **Completed** | Cluster CRUD, unclustered cards pool, inline rename/delete, commit `12209ad`, verified by QA |
-| **#11** | [11. Drag-and-Drop Card Clustering with SortableJS](https://github.com/parnamijanesh-creator/project-feedback/issues/11) | ⏳ **Next Up** | SortableJS + HTMX card movement integration |
-| **#12** | [12. Secret Voting on Discussion Clusters](https://github.com/parnamijanesh-creator/project-feedback/issues/12) | ⬜ Not Started | 3-vote limit per user, masked live counts |
+| **#11** | [11. Drag-and-Drop Card Clustering with SortableJS](https://github.com/parnamijanesh-creator/project-feedback/issues/11) | ✅ **Completed** | SortableJS 1.15 integration, async move endpoint, revert fallback, commit `dfdd7a3`, verified by QA |
+| **#12** | [12. Secret Voting on Discussion Clusters](https://github.com/parnamijanesh-creator/project-feedback/issues/12) | ⏳ **Next Up** | 3-vote limit per user, masked live counts |
 | **#13** | [13. Voting Close and Ranked Discussion Agenda](https://github.com/parnamijanesh-creator/project-feedback/issues/13) | ⬜ Not Started | DiscussionTopic ranking and priority ordering |
 | **#14** | [14. Interactive Discussion Management and In-Meeting Notes](https://github.com/parnamijanesh-creator/project-feedback/issues/14) | ⬜ Not Started | Discussed/Skipped/Deferred status & notes |
 | **#15** | [15. Django Channels Setup and Retrospective WebSocket Consumer](https://github.com/parnamijanesh-creator/project-feedback/issues/15) | ⬜ Not Started | ASGI WebSocket consumer & Redis channel layer |
@@ -53,3 +53,4 @@
 - **2026-09-22:** Completed Task 8 (Issue #8): Implemented `RetrospectiveSession` model, 3-column reveal board with Start/Stop/Continue columns, facilitator-only reveal action, anonymous card decoupling in the UI, and comprehensive test suite. Passed QA verification.
 - **2026-09-22:** Completed Task 9 (Issue #9): Implemented AI-assisted thematic card clustering service using OpenAI/Pydantic structured output, `TopicCluster` model, foreign card sanitization, graceful error fallbacks, and facilitator trigger view. Passed QA verification.
 - **2026-09-22:** Completed Task 10 (Issue #10): Implemented manual cluster CRUD operations, inline title editing, deletion with card dislodgment and unclustered cards pool OOB swap, authorization and closed cycle safeguards. Passed QA verification.
+- **2026-09-22:** Completed Task 11 (Issue #11): Implemented drag-and-drop card clustering with SortableJS, async persistence endpoint `/retro/cards/<id>/move/`, same-container no-op handling, cross-project isolation, and client-side error rollback. Passed QA verification.
