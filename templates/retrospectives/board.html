@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Retrospective Board — {{ project.name }} (Week of {{ cycle.week_date }}){% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Top Header & Breadcrumb -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-5">
+        <div>
+            <div class="flex items-center gap-2 text-sm text-slate-500 mb-1">
+                <a href="{% url 'project_list' %}" class="hover:text-indigo-600 transition">Projects</a>
+                <span>/</span>
+                <a href="{% url 'project_detail' slug=project.slug %}" class="hover:text-indigo-600 transition">{{ project.name }}</a>
+                <span>/</span>
+                <a href="{% url 'cycle_detail' slug=project.slug pk=cycle.pk %}" class="hover:text-indigo-600 transition">Week of {{ cycle.week_date|date:"M d, Y" }}</a>
+                <span>/</span>
+                <span class="text-slate-900 font-medium">Retrospective Board</span>
+            </div>
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">
+                Retrospective Board: Week of {{ cycle.week_date|date:"M d, Y" }}
+            </h1>
+        </div>
+
+        <div class="flex items-center gap-3">
+            {% if retro_session %}
+                <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide bg-indigo-100 text-indigo-800 border border-indigo-200">
+                    Stage: {{ retro_session.get_current_stage_display }}
+                </span>
+            {% else %}
+                <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide bg-amber-100 text-amber-800 border border-amber-200">
+                    ● Submissions Hidden
+                </span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if not retro_session %}
+        <!-- Pre-Reveal State -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center max-w-2xl mx-auto shadow-sm space-y-5">
+            <div class="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto text-2xl font-bold">
+                🔒
+            </div>
+            <h2 class="text-2xl font-bold text-slate-900">Cards Are Hidden</h2>
+            <p class="text-slate-600 text-sm leading-relaxed">
+                Feedback submissions remain completely private to prevent groupthink and author bias until the facilitator initiates the retrospective meeting.
+            </p>
+
+            {% if is_facilitator %}
+                <div class="pt-4">
+                    <form method="post" action="{% url 'retro_reveal' slug=project.slug pk=cycle.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-lg shadow-indigo-100 transition">
+                            Start Retrospective / Reveal Cards
+                        </button>
+                    </form>
+                    <p class="text-xs text-slate-400 mt-2">All submitted cards will be revealed to the team immediately.</p>
+                </div>
+            {% else %}
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 font-medium">
+                    ⏳ Waiting for project facilitator to start retrospective and reveal cards...
+                </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <!-- Revealed Board: Three Columns (Start, Stop, Continue) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+            <!-- START COLUMN -->
+            <div class="bg-slate-100/70 rounded-2xl p-5 border border-slate-200 flex flex-col space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-500 shadow-sm shadow-emerald-200"></span>
+                        <h2 class="font-bold text-slate-900">Start</h2>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                            {{ start_cards|length }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    {% for card in start_cards %}
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+                            <p class="text-slate-800 text-sm whitespace-pre-wrap leading-relaxed">{{ card.text }}</p>
+                            <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
+                                {% if card.is_anonymous %}
+                                    <span class="font-medium text-slate-500">🕵️ Anonymous</span>
+                                {% else %}
+                                    <span class="font-medium text-slate-700">{{ card.user.username }}</span>
+                                {% endif %}
+                                <span>{{ card.created_at|date:"M d, g:i a" }}</span>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="p-6 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                            No cards submitted
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- STOP COLUMN -->
+            <div class="bg-slate-100/70 rounded-2xl p-5 border border-slate-200 flex flex-col space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-rose-500 shadow-sm shadow-rose-200"></span>
+                        <h2 class="font-bold text-slate-900">Stop</h2>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800">
+                            {{ stop_cards|length }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    {% for card in stop_cards %}
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+                            <p class="text-slate-800 text-sm whitespace-pre-wrap leading-relaxed">{{ card.text }}</p>
+                            <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
+                                {% if card.is_anonymous %}
+                                    <span class="font-medium text-slate-500">🕵️ Anonymous</span>
+                                {% else %}
+                                    <span class="font-medium text-slate-700">{{ card.user.username }}</span>
+                                {% endif %}
+                                <span>{{ card.created_at|date:"M d, g:i a" }}</span>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="p-6 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                            No cards submitted
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- CONTINUE COLUMN -->
+            <div class="bg-slate-100/70 rounded-2xl p-5 border border-slate-200 flex flex-col space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-sky-500 shadow-sm shadow-sky-200"></span>
+                        <h2 class="font-bold text-slate-900">Continue</h2>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800">
+                            {{ continue_cards|length }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    {% for card in continue_cards %}
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+                            <p class="text-slate-800 text-sm whitespace-pre-wrap leading-relaxed">{{ card.text }}</p>
+                            <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
+                                {% if card.is_anonymous %}
+                                    <span class="font-medium text-slate-500">🕵️ Anonymous</span>
+                                {% else %}
+                                    <span class="font-medium text-slate-700">{{ card.user.username }}</span>
+                                {% endif %}
+                                <span>{{ card.created_at|date:"M d, g:i a" }}</span>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="p-6 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                            No cards submitted
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

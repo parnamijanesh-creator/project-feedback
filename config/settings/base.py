@@ -26,6 +26,7 @@ LOCAL_APPS = [
     "apps.accounts",
     "apps.projects",
     "apps.cycles",
+    "apps.retrospectives",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
