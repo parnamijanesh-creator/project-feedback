@@ -9,6 +9,7 @@ from .views import (
     RetroRevealView,
     RetroRunClusteringView,
     RetroStageTransitionView,
+    RetroCardMoveView,
 )
 
 urlpatterns = [
@@ -20,4 +21,5 @@ urlpatterns = [
     path("projects/<slug:slug>/cycles/<int:pk>/retro/clusters/<int:cluster_id>/", ClusterUpdateView.as_view(), name="cluster_update"),
     path("projects/<slug:slug>/cycles/<int:pk>/retro/clusters/<int:cluster_id>/title/", ClusterTitleView.as_view(), name="cluster_title"),
     path("projects/<slug:slug>/cycles/<int:pk>/retro/clusters/<int:cluster_id>/delete/", ClusterDeleteView.as_view(), name="cluster_delete"),
+    path("retro/cards/<int:card_id>/move/", RetroCardMoveView.as_view(), name="retro_card_move"),
 ]

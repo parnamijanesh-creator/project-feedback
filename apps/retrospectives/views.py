@@ -2,7 +2,7 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -315,3 +315,54 @@ class ClusterDeleteView(LoginRequiredMixin, View):
 
         messages.success(request, f"Cluster '{cluster.title}' deleted. Cards returned to unclustered pool.")
         return redirect("retro_board", slug=slug, pk=pk)
+
+
+class RetroCardMoveView(LoginRequiredMixin, View):
+    """Asynchronously moves a feedback card to a target cluster or to unclustered pool."""
+
+    def post(self, request, card_id):
+        card = get_object_or_404(FeedbackCard, pk=card_id)
+        cycle = card.cycle
+        project = cycle.project
+        _check_membership(request, project)
+
+        retro_session = getattr(cycle, "retro_session", None)
+        if not retro_session or retro_session.current_stage != RetrospectiveSession.Stage.CLUSTER:
+            raise PermissionDenied("Card movement is disabled when not in the CLUSTER stage.")
+
+        cluster_id = request.POST.get("cluster_id")
+
+        if cluster_id in [None, "", "null", "None"]:
+            # Move card to unclustered pool
+            card.cluster = None
+            card.save(update_fields=["cluster"])
+            return JsonResponse({
+                "success": True,
+                "card_id": card.pk,
+                "cluster_id": None,
+                "message": "Card moved to unclustered pool.",
+            })
+
+        try:
+            target_cluster_id = int(cluster_id)
+        except (ValueError, TypeError):
+            return HttpResponseBadRequest("Invalid cluster_id provided.")
+
+        try:
+            target_cluster = TopicCluster.objects.get(pk=target_cluster_id)
+        except TopicCluster.DoesNotExist:
+            return HttpResponseBadRequest("Target cluster does not exist.")
+
+        # Validate cross-project and cross-session isolation
+        if target_cluster.session != retro_session:
+            return HttpResponseBadRequest("Target cluster belongs to a different cycle or session.")
+
+        card.cluster = target_cluster
+        card.save(update_fields=["cluster"])
+
+        return JsonResponse({
+            "success": True,
+            "card_id": card.pk,
+            "cluster_id": target_cluster.pk,
+            "message": f"Card moved to cluster '{target_cluster.title}'.",
+        })

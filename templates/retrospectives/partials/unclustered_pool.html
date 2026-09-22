@@ -9,9 +9,9 @@
         </span>
     </div>
 
-    <div id="unclustered-cards-list" class="space-y-3 min-h-[150px]">
+    <div id="unclustered-cards-list" data-cluster-id="" class="space-y-3 min-h-[150px] sortable-cards-pool">
         {% for card in unclustered_cards %}
-            <div id="card-{{ card.id }}" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+            <div id="card-{{ card.id }}" data-card-id="{{ card.id }}" class="card-drag-handle cursor-grab active:cursor-grabbing bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2 hover:shadow-md hover:border-indigo-200 transition">
                 <div class="flex items-center justify-between">
                     <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded
                         {% if card.category == 'START' %}bg-emerald-100 text-emerald-800
@@ -19,7 +19,7 @@
                         {% else %}bg-sky-100 text-sky-800{% endif %}">
                         {{ card.get_category_display }}
                     </span>
-                    <span class="text-xs text-slate-400">{{ card.created_at|date:"M d, g:i a" }}</span>
+                    <span class="text-xs text-slate-400">⠿ {{ card.created_at|date:"M d, g:i a" }}</span>
                 </div>
                 <p class="text-slate-800 text-sm whitespace-pre-wrap leading-relaxed">{{ card.text }}</p>
                 <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
