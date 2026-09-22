@@ -1,8 +1,8 @@
 # Project Progress & State Tracker
 
 ## Current Status
-- **Active Phase:** Phase 1 — Project Foundation
-- **Current Active Task:** [Issue #5: 5. Feedback Cycle Creation and Facilitator Controls](https://github.com/parnamijanesh-creator/project-feedback/issues/5)
+- **Active Phase:** Phase 2 — Feedback Collection & Anonymous Input
+- **Current Active Task:** [Issue #6: 6. Feedback Card Models and Anonymity Logic](https://github.com/parnamijanesh-creator/project-feedback/issues/6)
 - **Last Updated:** 2026-09-22
 
 ---
@@ -15,8 +15,8 @@
 | **#2** | [2. Containerized Local Development Environment](https://github.com/parnamijanesh-creator/project-feedback/issues/2) | ✅ **Completed** | Docker Compose (Daphne ASGI, Postgres 16, Redis 7), Dockerfile, .dockerignore, .env.example, verified by QA |
 | **#3** | [3. User Authentication and Session Management](https://github.com/parnamijanesh-creator/project-feedback/issues/3) | ✅ **Completed** | Custom User model, auth forms/views/templates, session management, commit `5ba97dd`, verified by QA |
 | **#4** | [4. Projects and Team Membership Management](https://github.com/parnamijanesh-creator/project-feedback/issues/4) | ✅ **Completed** | Project & ProjectMember models, roles, unique slugs, roster controls, commit `1b07950`, verified by QA |
-| **#5** | [5. Feedback Cycle Creation and Facilitator Controls](https://github.com/parnamijanesh-creator/project-feedback/issues/5) | ⏳ **Next Up** | FeedbackCycle model and dashboard controls |
-| **#6** | [6. Feedback Card Models and Anonymity Logic](https://github.com/parnamijanesh-creator/project-feedback/issues/6) | ⬜ Not Started | FeedbackCard model with decoupled anonymous entries |
+| **#5** | [5. Feedback Cycle Creation and Facilitator Controls](https://github.com/parnamijanesh-creator/project-feedback/issues/5) | ✅ **Completed** | FeedbackCycle model, week defaults, dashboard integration, phase transition controls, commit `84591a7`, verified by QA |
+| **#6** | [6. Feedback Card Models and Anonymity Logic](https://github.com/parnamijanesh-creator/project-feedback/issues/6) | ⏳ **Next Up** | FeedbackCard model with decoupled anonymous entries |
 | **#7** | [7. Feedback Submission Interface with HTMX](https://github.com/parnamijanesh-creator/project-feedback/issues/7) | ⬜ Not Started | Start/Stop/Continue card submission form |
 | **#8** | [8. Retrospective Session Model and Reveal Stage](https://github.com/parnamijanesh-creator/project-feedback/issues/8) | ⬜ Not Started | RetrospectiveSession model, reveal all cards |
 | **#9** | [9. AI-Assisted Thematic Card Clustering Service](https://github.com/parnamijanesh-creator/project-feedback/issues/9) | ⬜ Not Started | LLM grouping service & TopicCluster model |
@@ -47,3 +47,4 @@
 - **2026-09-22:** Completed Task 2 (Issue #2): Built containerized local development environment with Daphne ASGI, PostgreSQL 16 Alpine, and Redis 7 Alpine via Docker Compose. Added `DatabaseSmokeTest` and passed full QA verification suite.
 - **2026-09-22:** Completed Task 3 (Issue #3): Implemented custom `User` model, Tailwind authentication forms/views/templates, session expiration, duplicate and weak password validation, and automated test suite. Passed QA verification.
 - **2026-09-22:** Completed Task 4 (Issue #4): Implemented `Project` and `ProjectMember` models, auto-slug generation, role-based access control (Facilitator/Member), member roster management with last-facilitator safeguards, and automated tests. Passed QA verification.
+- **2026-09-22:** Completed Task 5 (Issue #5): Implemented `FeedbackCycle` model, default week date calculation, project dashboard cycle listing, facilitator cycle creation and phase transition controls, active cycle duplicate safeguards, and automated tests. Passed QA verification.
