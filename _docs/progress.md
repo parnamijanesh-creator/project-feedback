@@ -1,0 +1,44 @@
+# Project Progress & State Tracker
+
+## Current Status
+- **Active Phase:** Phase 1 — Project Foundation
+- **Current Active Task:** [Issue #1: 1. Initial Project Setup and Smoke Test](https://github.com/parnamijanesh-creator/project-feedback/issues/1)
+- **Last Updated:** 2026-09-22
+
+---
+
+## Tasks & Issues Status
+
+| Issue # | Task Title | Status | Commits / Notes |
+| :--- | :--- | :--- | :--- |
+| **#1** | [1. Initial Project Setup and Smoke Test](https://github.com/parnamijanesh-creator/project-feedback/issues/1) | ⏳ **Next Up** | Baseline Django 5.x project with health check & tests |
+| **#2** | [2. Containerized Local Development Environment](https://github.com/parnamijanesh-creator/project-feedback/issues/2) | ⬜ Not Started | Docker Compose (Daphne, Postgres, Redis) |
+| **#3** | [3. User Authentication and Session Management](https://github.com/parnamijanesh-creator/project-feedback/issues/3) | ⬜ Not Started | Django auth, login/register templates |
+| **#4** | [4. Projects and Team Membership Management](https://github.com/parnamijanesh-creator/project-feedback/issues/4) | ⬜ Not Started | Project & ProjectMember models, roles |
+| **#5** | [5. Feedback Cycle Creation and Facilitator Controls](https://github.com/parnamijanesh-creator/project-feedback/issues/5) | ⬜ Not Started | FeedbackCycle model and dashboard controls |
+| **#6** | [6. Feedback Card Models and Anonymity Logic](https://github.com/parnamijanesh-creator/project-feedback/issues/6) | ⬜ Not Started | FeedbackCard model with decoupled anonymous entries |
+| **#7** | [7. Feedback Submission Interface with HTMX](https://github.com/parnamijanesh-creator/project-feedback/issues/7) | ⬜ Not Started | Start/Stop/Continue card submission form |
+| **#8** | [8. Retrospective Session Model and Reveal Stage](https://github.com/parnamijanesh-creator/project-feedback/issues/8) | ⬜ Not Started | RetrospectiveSession model, reveal all cards |
+| **#9** | [9. AI-Assisted Thematic Card Clustering Service](https://github.com/parnamijanesh-creator/project-feedback/issues/9) | ⬜ Not Started | LLM grouping service & TopicCluster model |
+| **#10** | [10. Manual Cluster Organization and Editing](https://github.com/parnamijanesh-creator/project-feedback/issues/10) | ⬜ Not Started | Cluster CRUD & unclustered cards container |
+| **#11** | [11. Drag-and-Drop Card Clustering with SortableJS](https://github.com/parnamijanesh-creator/project-feedback/issues/11) | ⬜ Not Started | SortableJS + HTMX card movement integration |
+| **#12** | [12. Secret Voting on Discussion Clusters](https://github.com/parnamijanesh-creator/project-feedback/issues/12) | ⬜ Not Started | 3-vote limit per user, masked live counts |
+| **#13** | [13. Voting Close and Ranked Discussion Agenda](https://github.com/parnamijanesh-creator/project-feedback/issues/13) | ⬜ Not Started | DiscussionTopic ranking and priority ordering |
+| **#14** | [14. Interactive Discussion Management and In-Meeting Notes](https://github.com/parnamijanesh-creator/project-feedback/issues/14) | ⬜ Not Started | Discussed/Skipped/Deferred status & notes |
+| **#15** | [15. Django Channels Setup and Retrospective WebSocket Consumer](https://github.com/parnamijanesh-creator/project-feedback/issues/15) | ⬜ Not Started | ASGI WebSocket consumer & Redis channel layer |
+| **#16** | [16. Client-Side Real-Time Board Synchronization](https://github.com/parnamijanesh-creator/project-feedback/issues/16) | ⬜ Not Started | Live board broadcast listeners & HTMX swaps |
+| **#17** | [17. Meeting Record Ingestion (Upload Media and Paste Text)](https://github.com/parnamijanesh-creator/project-feedback/issues/17) | ⬜ Not Started | Audio/video upload & text transcript intake |
+| **#18** | [18. Celery Task Infrastructure and Media Audio Extraction](https://github.com/parnamijanesh-creator/project-feedback/issues/18) | ⬜ Not Started | Celery worker & ffmpeg audio extraction |
+| **#19** | [19. Asynchronous Whisper Speech-to-Text Transcription](https://github.com/parnamijanesh-creator/project-feedback/issues/19) | ⬜ Not Started | Whisper API background transcription worker |
+| **#20** | [20. AI Structured Extraction for Decisions, Actions, and Summary](https://github.com/parnamijanesh-creator/project-feedback/issues/20) | ⬜ Not Started | LLM structured parsing for decisions & actions |
+| **#21** | [21. Facilitator Outcome Review and Confirmation Interface](https://github.com/parnamijanesh-creator/project-feedback/issues/21) | ⬜ Not Started | Facilitator review & confirmation screen |
+| **#22** | [22. Published Retrospective Summary View](https://github.com/parnamijanesh-creator/project-feedback/issues/22) | ⬜ Not Started | Read-only published retro summary |
+| **#23** | [23. Project Action Items Dashboard and Status Updates](https://github.com/parnamijanesh-creator/project-feedback/issues/23) | ⬜ Not Started | Open/Done action item management on project page |
+
+---
+
+## Architectural Decisions & Changelog
+- **2026-09-21:** Defined product scope in [_docs/plan.md](plan.md).
+- **2026-09-21:** Selected Option 3 (Django Full-Stack Monolith with Channels, HTMX, Celery, and Whisper) and documented architecture in [_docs/architecture.md](architecture.md).
+- **2026-09-21:** Decomposed work into 23 standalone tasks in [_docs/tasks.md](tasks.md) and published to GitHub issues #1–#23.
+- **2026-09-22:** Established persistent context framework with `AGENTS.md` and `_docs/progress.md`.
