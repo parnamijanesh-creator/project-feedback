@@ -29,6 +29,11 @@
                         </div>
                         <span class="font-bold text-lg tracking-tight text-slate-900">FeedbackLoop</span>
                     </a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'project_list' %}" class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition ml-4">
+                            Projects
+                        </a>
+                    {% endif %}
                 </div>
 
                 <!-- Navigation Auth Controls -->

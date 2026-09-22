@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}My Projects — Weekly Team Feedback Tool{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header with Action -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Team Projects</h1>
+            <p class="text-sm text-slate-500 mt-1">Select a project workspace to collaborate on feedback cycles and retrospectives.</p>
+        </div>
+        <a href="{% url 'project_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            New Project
+        </a>
+    </div>
+
+    <!-- Projects Grid -->
+    {% if memberships %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for membership in memberships %}
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <h2 class="text-lg font-bold text-slate-900 line-clamp-1">
+                                <a href="{% url 'project_detail' slug=membership.project.slug %}" class="hover:text-indigo-600 transition">
+                                    {{ membership.project.name }}
+                                </a>
+                            </h2>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {% if membership.role == 'FACILITATOR' %}bg-indigo-100 text-indigo-800 border border-indigo-200{% else %}bg-slate-100 text-slate-700 border border-slate-200{% endif %}">
+                                {{ membership.get_role_display }}
+                            </span>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4 line-clamp-2">
+                            {{ membership.project.description|default:"No description provided." }}
+                        </p>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                        <span>Created {{ membership.project.created_at|date:"M d, Y" }}</span>
+                        <a href="{% url 'project_detail' slug=membership.project.slug %}" class="font-semibold text-indigo-600 hover:text-indigo-500 inline-flex items-center">
+                            Open Project &rarr;
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center max-w-lg mx-auto">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-4 font-bold text-xl">
+                📁
+            </div>
+            <h3 class="text-base font-semibold text-slate-900">No projects yet</h3>
+            <p class="mt-1 text-sm text-slate-500">You are not a member of any projects yet. Create one to get started.</p>
+            <div class="mt-6">
+                <a href="{% url 'project_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition">
+                    Create Project
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
